@@ -2170,37 +2170,98 @@
 
         @media (max-width: 768px) {
             .header-inner {
-                padding: 0 20px;
-                height: 64px;
+                padding: 0 16px;
+                height: 60px;
+            }
+
+            .header-nav {
+                top: 60px;
             }
 
             .hero {
-                min-height: 90vh;
+                min-height: 85vh;
             }
 
             .hero-content {
-                padding: 0 20px;
+                padding: 0 16px;
+            }
+
+            .hero-title {
+                font-size: 2.3rem; /* 2.3rem is ~36px */
+                line-height: 1.35;
+                word-break: keep-all; 
+            }
+
+            .hero-subtitle {
+                font-size: 1.05rem;
+                line-height: 1.6;
+                margin-top: 16px;
+                margin-bottom: 32px;
+                word-break: keep-all;
             }
 
             .hero-actions {
                 flex-direction: column;
-                align-items: center;
+                align-items: stretch;
+                gap: 12px;
             }
 
             .btn-gold,
             .btn-outline {
                 width: 100%;
-                max-width: 300px;
+                max-width: none;
                 text-align: center;
+                padding: 14px 20px;
+                font-size: 1.05rem;
+            }
+
+            .section {
+                padding: 60px 16px;
+            }
+
+            .section-title {
+                font-size: 1.7rem; /* ~27px */
+                line-height: 1.35;
+                word-break: keep-all;
+                padding: 0 10px;
+            }
+
+            .section-desc {
+                font-size: 0.95rem;
+                line-height: 1.6;
+                margin-bottom: 40px;
+                word-break: keep-all;
+                padding: 0 10px;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .courses-grid,
+            .solutions-overview-grid {
+                gap: 16px;
             }
 
             .project-top {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+
+            .course-card, .feature-card, .solution-overview-card {
+                padding: 24px 20px;
+            }
+
+            .course-title, .feature-title, .sol-title {
+                font-size: 1.25rem;
+                word-break: keep-all;
+            }
+
+            .course-content p, .feature-desc, .sol-desc {
+                font-size: 0.95rem;
+                line-height: 1.6;
+                word-break: keep-all;
             }
 
             .chatbot-window {
@@ -2218,26 +2279,34 @@
             .fixed-cta {
                 left: 12px;
                 bottom: 12px;
-                font-size: 0.8rem;
-                padding: 12px 20px;
+                font-size: 0.9rem;
+                padding: 12px 16px;
             }
 
             .fixed-cta small {
                 display: none;
             }
 
-            .cube-wrapper {
-                display: none;
-            }
-
-            .pyramid-wrapper {
+            .cube-wrapper, .pyramid-wrapper {
                 display: none;
             }
         }
 
         @media (max-width: 480px) {
             .logo-text {
-                font-size: 1.2rem;
+                font-size: 1.15rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.55rem;
             }
         }
 
