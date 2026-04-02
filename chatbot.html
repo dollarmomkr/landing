@@ -1,0 +1,4511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>피닉스 치과 AI 상담사</title>
+    
+    <!-- 캐시 방지 및 모바일 최적화 메타 태그 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="address=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4facfe">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --vh: 1vh;
+            --primary-color: #4facfe;
+            --secondary-color: #00f2fe;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+
+        html, body {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .chatbot-main {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+            position: relative;
+        }
+
+        /* 헤더 */
+        .chatbot-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+            flex: 1;
+        }
+
+        .back-link {
+            position: absolute;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            z-index: 1000;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .home-icon {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .home-arrow {
+            font-size: 14px;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        /* API 상태 표시 */
+        #apiStatus {
+            position: absolute;
+            top: 10px;
+            right: 140px;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+            font-weight: bold;
+            z-index: 1001;
+        }
+
+        /* AI ON 상태 애니메이션 */
+        .ai-on {
+            background: #d4edda !important;
+            color: #155724 !important;
+            border-color: #c3e6cb !important;
+        }
+
+        .ai-on .blink {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* AI OFF 상태 */
+        .ai-off {
+            background: #f8d7da !important;
+            color: #721c24 !important;
+            border-color: #f5c6cb !important;
+        }
+
+        /* 언어 선택 드롭다운 */
+        .header-language-dropdown {
+            position: absolute;
+            right: 15px;
+            z-index: 2000;
+        }
+
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .language-current {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: 2px solid #ffbf00;
+            color: black !important;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 100px;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.4);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .language-current:hover {
+            background: linear-gradient(135deg, #ffbf00 0%, #ffd700 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .language-current:active {
+            transform: scale(0.95);
+        }
+
+        .language-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 3000;
+            display: none;
+            min-width: 120px;
+            margin-top: 5px;
+            animation: menuSlideDown 0.2s ease-out;
+        }
+
+        @keyframes menuSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .language-menu.show {
+            display: block;
+        }
+
+        .language-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            color: black !important;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .language-option:last-child {
+            border-bottom: none;
+        }
+
+        .language-option:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
+        .language-option:active {
+            background: linear-gradient(135deg, #ffbf00 0%, #ffd700 100%);
+            transform: scale(0.98);
+        }
+
+        .language-option.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white !important;
+        }
+
+        /* 안드로이드 카카오톡 브라우저 최적화 */
+        .android-kakao .language-current {
+            min-height: 36px;  /* 44px에서 36px로 줄임 */
+            min-width: 80px;   /* 100px에서 80px로 줄임 */
+            padding: 8px 8px;  /* 8px 12px에서 8px 8px로 줄임 */
+            font-size: 12px;    /* 14px에서 12px로 줄임 */
+        }
+
+        .android-kakao .language-option {
+            min-height: 36px;   /* 44px에서 36px로 줄임 */
+            min-width: 80px;    /* 120px에서 80px로 줄임 */
+            padding: 8px 8px;   /* 8px 12px에서 8px 8px로 줄임 */
+            font-size: 12px;    /* 14px에서 12px로 줄임 */
+        }
+
+        .android-kakao .language-menu {
+            margin-top: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        /* 윈도우 브라우저 최적화 */
+        .windows-browser .language-current {
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .windows-browser .language-current:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5) !important;
+        }
+
+        .windows-browser .language-option {
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .windows-browser .language-option:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%) !important;
+            transform: translateX(2px) !important;
+        }
+
+        .windows-browser .language-menu {
+            animation: menuSlideDown 0.3s ease-out !important;
+        }
+
+        /* 메시지 영역 */
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 80px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        /* 빠른 버튼 최적화 */
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .quick-button {
+            background: #f0f8ff;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 10px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            will-change: transform, box-shadow;
+            text-align: center;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-button:active {
+            transform: translateY(0);
+        }
+
+        /* 특별 버튼 스타일 */
+        .clinic-hours-btn {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%) !important;
+            color: #333 !important;
+            border: none !important;
+        }
+
+        .treatment-cost-btn {
+            background: linear-gradient(135deg, #1e88e5 0%, #42a5f5 100%) !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .reservation-btn {
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%) !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .directions-btn {
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%) !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        /* 입력 영역 */
+        .chatbot-input {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #ddd;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chatbot-input textarea {
+            flex: 1;
+            border: 2px solid var(--primary-color);
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            min-height: 45px;
+            max-height: 120px;
+            line-height: 1.4;
+            -webkit-user-select: text;
+            user-select: text;
+            touch-action: manipulation;
+            font-family: inherit;
+        }
+
+        .chatbot-input textarea:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+        }
+
+        .chatbot-send {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 90px;
+            height: 45px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .chatbot-send:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .chatbot-send:active {
+            transform: scale(0.95);
+        }
+
+        /* 로딩 애니메이션 */
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 80% { content: '...'; }
+            100% { content: ''; }
+        }
+
+        /* 예약 버튼 스타일 */
+        .reservation-button {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%) !important;
+            color: white !important;
+            border: none !important;
+            padding: 12px 24px !important;
+            border-radius: 25px !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            text-decoration: none !important;
+            display: inline-block !important;
+            margin: 10px 0 !important;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3) !important;
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+
+        .reservation-button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5) !important;
+        }
+
+        .reservation-message {
+            margin-top: 15px !important;
+            padding: 15px !important;
+            background: #f8f9fa !important;
+            border-radius: 10px !important;
+            border-left: 4px solid var(--primary-color) !important;
+            text-align: center !important;
+        }
+
+        .reservation-message-text {
+            font-size: 14px !important;
+            color: #666 !important;
+            margin-bottom: 10px !important;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .chatbot-header {
+                padding: 12px 8px;
+            }
+            
+            .chatbot-title {
+                font-size: 16px;
+                margin: 0 80px;
+            }
+            
+            .back-link {
+                width: 50px;
+                height: 50px;
+                left: 8px;
+            }
+            
+            .home-icon {
+                font-size: 20px;
+            }
+            
+            .home-arrow {
+                font-size: 12px;
+            }
+            
+            #apiStatus {
+                right: 90px;
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+            
+            .header-language-dropdown {
+                right: 8px;
+            }
+            
+            .language-current {
+                padding: 6px 10px;
+                font-size: 11px;
+                min-width: 80px;
+            }
+            
+            .chatbot-messages {
+                padding: 12px;
+                margin-bottom: 75px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+                font-size: 13px;
+            }
+            
+            .quick-buttons {
+                gap: 6px;
+                max-width: 280px;
+            }
+            
+            .quick-button {
+                font-size: 11px;
+                padding: 8px 6px;
+                min-height: 40px;
+            }
+            
+            .chatbot-input {
+                padding: 10px;
+            }
+            
+            .chatbot-send {
+                min-width: 70px;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+            
+            /* 안드로이드 카카오톡 브라우저 모바일 최적화 */
+            .android-kakao .language-current {
+                padding: 6px 8px;
+                font-size: 12px;
+                min-width: 75px;
+                min-height: 40px;
+            }
+            
+            .android-kakao .language-option {
+                padding: 8px 8px;
+                font-size: 12px;
+                min-height: 40px;
+            }
+            
+            .android-kakao .language-menu {
+                margin-top: 6px;
+                min-width: 85px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chatbot-title {
+                font-size: 14px;
+                margin: 0 70px;
+            }
+            
+            .back-link {
+                width: 45px;
+                height: 45px;
+                left: 5px;
+            }
+            
+            .home-icon {
+                font-size: 18px;
+            }
+            
+            .home-arrow {
+                font-size: 10px;
+            }
+            
+            #apiStatus {
+                right: 75px;
+                font-size: 9px;
+                padding: 2px 4px;
+            }
+            
+            .header-language-dropdown {
+                right: 5px;
+            }
+            
+            .language-current {
+                padding: 5px 8px;
+                font-size: 10px;
+                min-width: 70px;
+            }
+            
+            .chatbot-messages {
+                padding: 8px;
+                margin-bottom: 70px;
+            }
+            
+            .quick-buttons {
+                gap: 4px;
+                max-width: 250px;
+            }
+            
+            .quick-button {
+                font-size: 10px;
+                padding: 6px 4px;
+                min-height: 36px;
+            }
+            
+            .chatbot-input {
+                padding: 8px;
+            }
+            
+            .chatbot-send {
+                min-width: 60px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+
+        /* iOS Safari 최적화 */
+        @supports (-webkit-touch-callout: none) {
+            .chatbot-main {
+                height: 100vh;
+                height: -webkit-fill-available;
+            }
+            
+            .chatbot-input {
+                padding-bottom: env(safe-area-inset-bottom, 15px);
+            }
+        }
+
+        /* 키보드 열림 상태 최적화 */
+        .keyboard-open .chatbot-messages {
+            padding-bottom: 20px;
+        }
+
+        /* PC 최적화 */
+        @media (min-width: 1024px) {
+            .chatbot-main {
+                max-width: 800px;
+                margin: 0 auto;
+                height: 90vh;
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+                margin-top: 5vh;
+            }
+            
+            .chatbot-header {
+                border-radius: 20px 20px 0 0;
+            }
+            
+            .chatbot-input {
+                border-radius: 0 0 20px 20px;
+            }
+            
+            #apiStatus {
+                right: 160px;
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .language-current {
+                min-width: 120px;
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-main">
+        <!-- 헤더 -->
+        <div class="chatbot-header">
+            <a href="index.html" class="back-link" onclick="handleBackNavigation(event)">
+                <span class="home-icon">🏠</span>
+                <span class="home-arrow">←</span>
+            </a>
+            <h1 class="chatbot-title">피닉스 치과 AI 상담사👩‍⚕️</h1>
+            
+            <!-- API 설정 상태 표시 -->
+            <div id="apiStatus">❌ AI API 설정 안됨</div>
+            
+            <!-- 언어 선택 드롭다운 -->
+            <div class="header-language-dropdown">
+                <div class="language-dropdown">
+                    <button class="language-current" onclick="toggleLanguageMenu()" ontouchstart="toggleLanguageMenu()">
+                        <span id="currentLanguageText">🇰🇷 KR</span>
+                        <span>▼</span>
+                    </button>
+                    <div class="language-menu" id="languageMenu">
+                        <div class="language-option active" data-lang="ko" onclick="selectLanguage('ko')" ontouchstart="selectLanguage('ko')">🇰🇷 KR</div>
+                        <div class="language-option" data-lang="en" onclick="selectLanguage('en')" ontouchstart="selectLanguage('en')">🇺🇸 US</div>
+                        <div class="language-option" data-lang="ru" onclick="selectLanguage('ru')" ontouchstart="selectLanguage('ru')">🇷🇺 RU</div>
+                        <div class="language-option" data-lang="ja" onclick="selectLanguage('ja')" ontouchstart="selectLanguage('ja')">🇯🇵 JP</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- 메시지 영역 -->
+        <div class="chatbot-messages" id="chatbotMessages">
+            <!-- 메시지들이 여기에 추가됩니다 -->
+        </div>
+
+        <!-- 입력 영역 -->
+        <div class="chatbot-input">
+            <textarea id="chatbotInput" placeholder="메시지를 입력하세요..." rows="1" oninput="adjustTextareaHeight(this)" onkeydown="handleInputKeyDown(event)"></textarea>
+            <button class="chatbot-send" id="chatbotSendBtn" type="button">전송</button>
+        </div>
+    </div>
+
+    <!-- 관리자모드: OpenAI API 설정 모달 (채팅창에서 '관리자모드' 입력 시 표시) -->
+    <div class="admin-api-modal-overlay" id="adminApiModal" style="display: none;">
+        <div class="admin-api-modal">
+            <div class="admin-api-modal-header">
+                <h3>🔐 관리자 모드 – OpenAI API 설정</h3>
+                <button type="button" class="admin-api-modal-close" onclick="closeAdminApiModal()" aria-label="닫기">×</button>
+            </div>
+            <div class="admin-api-modal-body">
+                <div class="form-group">
+                    <label for="adminApiKey">OpenAI API Key</label>
+                    <input type="password" id="adminApiKey" placeholder="sk-proj-...">
+                </div>
+                <div class="form-group">
+                    <label for="adminModel">모델 선택 (100만 토큰당 가격)</label>
+                    <select id="adminModel">
+                        <option value="gpt-5.2">GPT-5.2 — Input $1.75 / Output $14.00 (100만 토큰)</option>
+                        <option value="gpt-5-mini">GPT-5 mini — Input $0.25 / Output $2.00 (100만 토큰)</option>
+                    </select>
+                </div>
+                <div class="admin-api-modal-actions">
+                    <button type="button" class="btn btn-primary" id="adminApiModalSave">💾 저장</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAdminApiModal()">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .admin-api-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .admin-api-modal {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 420px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: auto;
+        }
+        .admin-api-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+        .admin-api-modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .admin-api-modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+        }
+        .admin-api-modal-body {
+            padding: 20px;
+        }
+        .admin-api-modal-body .form-group {
+            margin-bottom: 16px;
+        }
+        .admin-api-modal-body .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #333;
+        }
+        .admin-api-modal-body .form-group input,
+        .admin-api-modal-body .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .admin-api-modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .admin-api-modal-actions .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .admin-api-modal-actions .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .admin-api-modal-actions .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+
+    <script>
+        console.log('🚀 피닉스 치과 AI 챗봇 시작 (최적화 버전)');
+
+        // 🎯 챗봇 핵심 클래스 (단일 책임 원칙 적용)
+        class PhoenixChatbot {
+            constructor() {
+                this.currentLanguage = 'ko';
+                this.apiSettings = null;
+                this.knowledgeBase = { enabled: false, files: [], parsedData: [] };
+                this.isProcessingMessage = false;
+                this.lastMessageTime = 0;
+                this.lastMessage = '';
+                
+                // 대화 이력 관리
+                this.chatHistory = [];
+                this.MAX_HISTORY = 20; // 최대 대화 이력 개수
+                this.MAX_TOKENS = 1500; // API 호출 최대 토큰
+                
+                this.initializeTranslations();
+                this.init();
+            }
+            
+            // 번역 데이터 초기화
+            initializeTranslations() {
+                this.translations = {
+                        ko: {
+                        title: '피닉스 치과 AI 상담사👩‍⚕️',
+                        placeholder: '메시지를 입력하세요...',
+                        sendButton: '전송',
+                        currentLanguage: '🇰🇷 KR',
+                        welcomeMessage: '피닉스 치과 AI상담사 입니다!',
+                        welcomeSubMessage: '우측 상단에서 언어 변경 가능합니다'
+                    },
+                    en: {
+                        title: 'Phoenix Dental AI Consultant👩‍⚕️',
+                        placeholder: 'Enter your message...',
+                        sendButton: 'Send',
+                        currentLanguage: '🇺🇸 US',
+                        welcomeMessage: 'I am Phoenix Dental AI consultant!',
+                        welcomeSubMessage: 'Language change available in top right menu'
+                    },
+                    ru: {
+                        title: 'Консультант ИИ стоматологии Phoenix👩‍⚕️',
+                        placeholder: 'Введите ваше сообщение...',
+                        sendButton: 'Отправить',
+                        currentLanguage: '🇷🇺 RU',
+                        welcomeMessage: 'Я консультант ИИ стоматологии Phoenix!',
+                        welcomeSubMessage: 'Изменение языка доступно в меню справа вверху'
+                    },
+                    ja: {
+                        title: '피닉스歯科AIコンサルタント👩‍⚕️',
+                        placeholder: 'メッセージを入力してください...',
+                        sendButton: '送信',
+                        currentLanguage: '🇯🇵 JP',
+                        welcomeMessage: '피닉스歯科AIコンサルタントです！',
+                        welcomeSubMessage: '右上メニューで言語変更が可能です'
+                    }
+                };
+            }
+            
+            // 초기화 (브라우저별 호환성 개선)
+            async init() {
+                console.log('🤖 피닉스 치과 AI 챗봇 초기화 시작');
+                
+                this.loadSettings();
+                this.setupEventListeners();
+                this.setupMobileOptimization();
+                setTimeout(() => this.addWelcomeMessage(), 500);
+                this.updateLanguageUI();
+                
+                // 브라우저별 API 연결 테스트 실행
+                try {
+                    await this.testBrowserApiConnection();
+                } catch (error) {
+                    console.warn('⚠️ 브라우저별 API 연결 테스트 실패:', error);
+                }
+                
+                console.log('✅ 피닉스 치과 AI 챗봇 초기화 완료');
+            }
+            
+            // 설정 로딩
+            loadSettings() {
+                this.loadApiSettings();
+                this.loadKnowledgeBaseSettings();
+                this.loadHistorySettings();
+                this.updateApiStatusDisplay();
+            }
+            
+            // 🎯 핵심 메시지 처리 함수 (개선된 우선순위)
+            async processMessage(message) {
+                console.log('🎯 메시지 처리 시작:', message);
+                
+                // 중복 실행 방지
+                if (this.isDuplicateMessage(message)) {
+                    console.log('⚠️ 중복 메시지 차단');
+                    return;
+                }
+                
+                this.setProcessingFlag(true);
+                
+                try {
+                    // ✅ 1차: 인사/감사 처리 (빠른 응답)
+                    if (this.isGreetingOrThanks(message)) {
+                        console.log('😊 1.5차: 인사/감사 처리');
+                        const response = this.generateGreetingResponse(message);
+                        this.addBotMessage(response);
+                        return;
+                    }
+                    
+                    // ✅ 2차: 지식베이스 검색
+                    console.log('📚 2차: 지식베이스 검색');
+                    const knowledgeAnswer = this.searchInKnowledgeBase(message);
+                    if (knowledgeAnswer) {
+                        console.log('✅ 지식베이스에서 답변 발견');
+                        this.addBotMessage(knowledgeAnswer);
+                        return;
+                    }
+                    
+                    // ✅ 3차: 기본 FAQ 답변 (키워드 기반)
+                    console.log('❓ 3차: 기본 FAQ 검색');
+                    const faqAnswer = this.getFAQAnswer(message);
+                    if (faqAnswer) {
+                        console.log('✅ FAQ 답변 발견:', faqAnswer.type);
+                        this.addBotMessage(faqAnswer.content);
+                        return;
+                    }
+                    
+                    // 특정 치료비용 질문 처리 추가
+                    if (this.isSpecificTreatmentCostQuery(message)) {
+                        console.log('💰 특정 치료비용 질문 감지: 키워드 답변 제공');
+                        const costAnswer = this.createTreatmentCostContent(this.currentLanguage);
+                        this.addBotMessage(costAnswer);
+                        return;
+                    }
+                    
+                    // ✅ 4차: AI API 호출
+                    console.log('🤖 4차: AI API 호출 시도');
+                    if (this.hasActiveAPI()) {
+                        console.log('✅ 활성화된 AI API 발견');
+                        
+                        // 상세 질문이나 특정 치료비용 질문인 경우에만 스마트 필터링 적용
+                        const useSmartFiltering = this.isDetailedQuestion(message) || 
+                                                 this.isSpecificTreatmentCostQuery(message);
+                        
+                        await this.generateAIResponse(message, useSmartFiltering);
+                        return;
+                    }
+                    
+                    // ✅ 5차: 시뮬레이션된 답변 (최후 수단)
+                    console.log('🎭 5차: 시뮬레이션된 답변 사용');
+                    setTimeout(() => {
+                        const response = this.generateSimulatedResponse(message);
+                        this.addBotMessage(response);
+                    }, 800);
+                    
+                } catch (error) {
+                    console.error('❌ 메시지 처리 오류:', error);
+                    
+                    const errorMessages = {
+                        ko: '죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해주세요.',
+                        en: 'Sorry. A temporary error occurred. Please try again.',
+                        ru: 'Извините. Произошла временная ошибка. Пожалуйста, попробуйте еще раз.',
+                        ja: '申し訳ございません。一時的なエラーが発生しました。もう一度お試しください。'
+                    };
+                    
+                    this.addBotMessage(errorMessages[this.currentLanguage] || errorMessages['ko']);
+                } finally {
+                    this.setProcessingFlag(false);
+                }
+            }
+            
+            // 중복 메시지 확인 (개선됨)
+            isDuplicateMessage(message) {
+                const currentTime = Date.now();
+                const isDuplicate = this.isProcessingMessage || 
+                                   (currentTime - this.lastMessageTime < 1000 && this.lastMessage === message);
+                
+                this.lastMessageTime = currentTime;
+                this.lastMessage = message;
+                return isDuplicate;
+            }
+            
+            // 처리 플래그 설정
+            setProcessingFlag(processing) {
+                this.isProcessingMessage = processing;
+                if (processing) {
+                    setTimeout(() => { this.isProcessingMessage = false; }, 5000);
+                }
+            }
+            
+
+            
+            // 인사/감사 확인
+            isGreetingOrThanks(message) {
+                const greetings = ['안녕', 'hello', 'hi', '하이', '반가워', '안녕하세요'];
+                const thanks = ['감사', '고마워', 'thanks', 'thank you', '땡큐'];
+                const meaningless = /^(떼|데|테|때|뗘|뗴|데데|떼떼){1,}$/i;
+                
+                const lower = message.toLowerCase();
+                return greetings.some(g => lower.includes(g)) || 
+                       thanks.some(t => lower.includes(t)) || 
+                       meaningless.test(lower);
+            }
+            
+            // 인사/감사 응답 생성
+            generateGreetingResponse(message) {
+                const lower = message.toLowerCase();
+                const reservationText = this.getReservationText();
+                
+                const greetingResponses = {
+                    ko: {
+                    thanks: `천만에요! 피닉스 치과를 이용해주셔서 감사합니다. 더 궁금한 점이 있으시면 언제든 문의해주세요 😊`,
+                    hello: `안녕하세요! 피닉스 치과 AI 상담사입니다. 궁금한 점이 있으시면 언제든 말씀해 주세요 😊`
+                    },
+                    en: {
+                        thanks: `You're welcome! Thank you for using Phoenix Dental. If you have any more questions, please feel free to ask anytime 😊`,
+                        hello: `Hello! I am Phoenix Dental AI consultant. If you have any questions, please feel free to ask anytime 😊`
+                    },
+                    ru: {
+                        thanks: `Пожалуйста! Спасибо, что пользуетесь Phoenix Dental. Если у вас есть еще вопросы, пожалуйста, обращайтесь в любое время 😊`,
+                        hello: `Здравствуйте! Я консультант ИИ стоматологии Phoenix. Если у вас есть вопросы, пожалуйста, обращайтесь в любое время 😊`
+                    },
+                    ja: {
+                        thanks: `どういたしまして！피닉스歯科をご利用いただき、ありがとうございます。他にご質問がございましたら、いつでもお気軽にお聞かせください 😊`,
+                        hello: `こんにちは！피닉스歯科AIコンサルタントです。ご質問がございましたら、いつでもお気軽にお聞かせください 😊`
+                    }
+                };
+                
+                const currentResponses = greetingResponses[this.currentLanguage] || greetingResponses['ko'];
+                
+                if (lower.includes('감사') || lower.includes('고마워') || lower.includes('thank') || 
+                    lower.includes('спасибо') || lower.includes('ありがとう')) {
+                    return `${currentResponses.thanks}
+                    
+                    <div class="reservation-message">
+                        <div class="reservation-message-text">${reservationText.message}</div>
+                        <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+                    </div>`;
+                }
+                
+                return `${currentResponses.hello}
+                
+                <div class="reservation-message">
+                    <div class="reservation-message-text">${reservationText.message}</div>
+                    <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+                </div>`;
+            }
+            
+            // FAQ 답변 처리 (스마트 키워드 매칭)
+            getFAQAnswer(message) {
+                // 상세 질문인 경우 키워드 매칭 우회
+                if (this.isDetailedQuestion(message)) {
+                    console.log(' 상세 질문 감지: 키워드 매칭 우회');
+                    return null;
+                }
+                
+                const keywordGroups = this.getKeywordGroups();
+                const normalized = message.toLowerCase().trim();
+                
+                for (const [groupName, group] of Object.entries(keywordGroups)) {
+                    if (this.matchesKeywords(normalized, group.keywords)) {
+                        // 동적으로 콘텐츠 생성
+                        let content;
+                        switch (group.type) {
+                            case 'clinicHours':
+                                content = this.createClinicHoursContent(this.currentLanguage);
+                                break;
+                            case 'treatmentCost':
+                                content = this.createTreatmentCostContent(this.currentLanguage);
+                                break;
+                            case 'reservationInquiry':
+                                content = this.createReservationContent(this.currentLanguage);
+                                break;
+                            case 'directions':
+                                content = this.createDirectionsContent(this.currentLanguage);
+                                break;
+                            default:
+                                content = '';
+                        }
+                        
+                        return {
+                            type: group.type,
+                            content: content
+                        };
+                    }
+                }
+                
+                return null;
+            }
+            
+            // 키워드 그룹 정의 (균형잡힌 다국어 키워드)
+            getKeywordGroups() {
+                return {
+                    clinicHours: {
+                        keywords: [
+                            // 한국어 (7개)
+                            '진료시간', '운영시간', '문여는', '열어', '닫는', '휴무', '휴진',
+                            // 영어 (7개)
+                            'clinic hours', 'hours', 'operating hours', 'open', 'close', 'closed', 'holiday',
+                            // 러시아어 (7개)
+                            'часы работы', 'рабочие часы', 'открыто', 'закрыто', 'выходной',
+                            // 일본어 (7개)
+                            '診療時間', '営業時間', '開く', '閉じる', '休診', '休み'
+                        ],
+                        type: 'clinicHours'
+                    },
+                    treatmentCost: {
+                        keywords: [
+                            // 한국어 (7개)
+                            '치료비용', '진료비', '비용', '가격', '얼마', '요금', '금액',
+                            // 영어 (7개)
+                            'treatment cost', 'cost', 'price', 'fee', 'charge', 'amount',
+                            // 러시아어 (7개)
+                            'стоимость лечения', 'стоимость', 'цена', 'плата', 'сумма',
+                            // 일본어 (7개)
+                            '治療費', '料金', '価格', '費用', '金額'
+                        ],
+                        type: 'treatmentCost'
+                    },
+                    reservation: {
+                        keywords: [
+                            // 한국어 (6개)
+                            '예약', '예약문의', '신청', '접수', '상담', '문의',
+                            // 영어 (6개)
+                            'reservation', 'booking', 'appointment', 'consultation', 'inquiry',
+                            // 러시아어 (6개)
+                            'запись', 'бронирование', 'консультация', 'запрос',
+                            // 일본어 (6개)
+                            '予約', '申し込み', '相談', '問い合わせ'
+                        ],
+                        type: 'reservationInquiry'
+                    },
+                    directions: {
+                        keywords: [
+                            // 한국어 (8개)
+                            '오시는길', '주소', '위치', '어디', '찾아', '교통', '지하철', '버스',
+                            // 영어 (8개)
+                            'directions', 'location', 'address', 'where', 'find', 'transport', 'subway', 'bus',
+                            // 러시아어 (8개)
+                            'как добраться', 'адрес', 'местоположение', 'где', 'найти', 'транспорт', 'метро', 'автобус',
+                            // 일본어 (8개)
+                            'アクセス', '住所', '場所', 'どこ', '見つける', '交通', '地下鉄', 'バス'
+                        ],
+                        type: 'directions'
+                    }
+                };
+            }
+            
+            // 키워드 매칭 (더 정확한 알고리즘)
+            matchesKeywords(message, keywords) {
+                return keywords.some(keyword => {
+                    // 정확한 단어 경계 매칭 또는 부분 문자열 매칭
+                    const wordBoundary = new RegExp(`\\b${keyword.toLowerCase()}\\b`);
+                    return wordBoundary.test(message) || message.includes(keyword.toLowerCase());
+                });
+            }
+            
+            // 상세 질문 패턴 감지 함수 추가
+            isDetailedQuestion(message) {
+                const detailedPatterns = [
+                    // 질문어 패턴
+                    /(어떻게|어떤|왜|언제|어디서|누가|무엇을|어떠한|어떤지|어떻게요|어떤가요|왜요|언제요|어디서요|누가요|무엇을요|어떠한가요)/,
+                    // 상세 설명 요청 패턴
+                    /(자세히|상세히|구체적으로|정확히|정확한|자세한|상세한|구체적인|알려주세요|설명해주세요|가르쳐주세요|알려주시겠어요|설명해주시겠어요|가르쳐주시겠어요)/,
+                    // 비교/분석 요청 패턴
+                    /(차이점|비교|분석|장단점|장점|단점|어떤|어떤 것이|어떤 것이 좋은지|어떤 것이 나쁜지|어떤 것이 더|어떤 것이 적합한지)/,
+                    // 과정/절차 요청 패턴
+                    /(과정|절차|순서|단계|방법|어떻게|어떤 순서로|어떤 단계로|어떤 과정을|어떤 절차를|어떤 방법으로)/,
+                    // 원인/이유 요청 패턴
+                    /(원인|이유|왜|어떤 이유로|어떤 원인으로|왜 그런지|어떤 이유인지|어떤 원인인지|왜 그런가요|어떤 이유인가요|어떤 원인인가요)/
+                ];
+                
+                const normalized = message.toLowerCase().trim();
+                return detailedPatterns.some(pattern => pattern.test(normalized));
+            }
+            
+            // 특정 치료비용 질문 감지 함수 추가
+            isSpecificTreatmentCostQuery(message) {
+                const costKeywords = [
+                    // 치료 종류별 키워드
+                    '스케일링', '임플란트', '교정', '미백', '충치', '발치', '보철', '치근관', '잇몸',
+                    'scaling', 'implant', 'orthodontics', 'whitening', 'cavity', 'extraction', 'prosthesis', 'root canal', 'gum',
+                    'чистка', 'имплант', 'ортодонтия', 'отбеливание', 'кариес', 'удаление', 'протезирование', 'канал', 'десна',
+                    'スケーリング', 'インプラント', '矯正', 'ホワイトニング', '虫歯', '抜歯', '補綴', '根管', '歯茎'
+                ];
+                
+                const priceKeywords = [
+                    // 가격 관련 키워드
+                    '얼마', '비용', '가격', '요금', '금액', '돈', '원',
+                    'cost', 'price', 'fee', 'amount', 'money',
+                    'стоимость', 'цена', 'плата', 'сумма', 'деньги',
+                    '料金', '価格', '費用', '金額', 'お金', '円'
+                ];
+                
+                const normalized = message.toLowerCase().trim();
+                const hasCostKeyword = costKeywords.some(keyword => normalized.includes(keyword));
+                const hasPriceKeyword = priceKeywords.some(keyword => normalized.includes(keyword));
+                
+                return hasCostKeyword && hasPriceKeyword;
+            }
+            
+            // 스마트 대화 이력 필터링 함수 추가
+            getSmartFilteredHistory(message) {
+                const recentHistory = this.chatHistory.slice(-this.MAX_HISTORY);
+                
+                // 질문 유형에 따른 필터링
+                if (this.isSpecificTreatmentCostQuery(message)) {
+                    // 치료비용 질문: 이력 제외 (정확한 답변을 위해)
+                    console.log('💰 치료비용 질문 감지: 대화 이력 제외');
+                    return [];
+                } else if (this.isDetailedQuestion(message)) {
+                    // 상세 질문: 최근 5개 메시지만 포함 (관련성 높은 컨텍스트만)
+                    console.log(' 상세 질문 감지: 최근 5개 메시지만 포함');
+                    return recentHistory.slice(-5).map(msg => ({
+                        role: msg.role,
+                        content: msg.content
+                    }));
+                } else {
+                    // 일반 질문: 기존 로직 사용
+                    console.log(' 일반 질문: 기존 대화 이력 로직 사용');
+                    return recentHistory.map(msg => ({
+                        role: msg.role,
+                        content: msg.content
+                    }));
+                }
+            }
+            
+            // API 활성 상태 확인 (브라우저별 호환성 개선)
+            hasActiveAPI() {
+                const hasApi = this.apiSettings && (
+                    (this.apiSettings.chatgpt?.enabled) ||
+                    (this.apiSettings.gemini?.enabled) ||
+                    (this.apiSettings.claude?.enabled)
+                );
+                
+                // 브라우저별 추가 검증
+                if (hasApi) {
+                    const userAgent = navigator.userAgent;
+                    const isChrome = /Chrome/.test(userAgent) && !/Edge/.test(userAgent);
+                    
+                    // Chrome 브라우저에서 추가 검증
+                    if (isChrome) {
+                        console.log('🔍 Chrome 브라우저에서 API 상태 추가 검증');
+                        // Chrome에서는 실제 연결 테스트를 수행할 수 있음
+                    }
+                }
+                
+                return hasApi;
+            }
+            
+            // 브라우저별 API 연결 테스트
+            async testBrowserApiConnection() {
+                const userAgent = navigator.userAgent;
+                const browserInfo = {
+                    isChrome: /Chrome/.test(userAgent) && !/Edge/.test(userAgent),
+                    isEdge: /Edge/.test(userAgent),
+                    isFirefox: /Firefox/.test(userAgent),
+                    isSafari: /Safari/.test(userAgent) && !/Chrome/.test(userAgent),
+                    isKakaoTalk: /KAKAO/.test(userAgent),
+                    userAgent: userAgent.substring(0, 100)
+                };
+                
+                console.log('🧪 브라우저별 API 연결 테스트 시작:', browserInfo);
+                
+                try {
+                    // 간단한 API 연결 테스트
+                    const testResponse = await fetch('/.netlify/functions/ask-ai', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            model: 'gpt-5.2',
+                            messages: [{ role: 'user', content: 'test' }],
+                            max_tokens: 10
+                        })
+                    });
+                    
+                    const testResult = {
+                        status: testResponse.status,
+                        ok: testResponse.ok,
+                        browser: browserInfo,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    console.log('✅ 브라우저별 API 연결 테스트 결과:', testResult);
+                    
+                    // 테스트 결과를 로컬 스토리지에 저장
+                    const testHistory = JSON.parse(localStorage.getItem('browserApiTestHistory') || '[]');
+                    testHistory.push(testResult);
+                    
+                    // 최근 10개만 유지
+                    if (testHistory.length > 10) {
+                        testHistory.splice(0, testHistory.length - 10);
+                    }
+                    
+                    localStorage.setItem('browserApiTestHistory', JSON.stringify(testHistory));
+                    
+                    return testResult;
+                    
+                } catch (error) {
+                    console.error('❌ 브라우저별 API 연결 테스트 실패:', error);
+                    
+                    const testResult = {
+                        status: 'error',
+                        error: error.message,
+                        browser: browserInfo,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // 오류 결과도 저장
+                    const testHistory = JSON.parse(localStorage.getItem('browserApiTestHistory') || '[]');
+                    testHistory.push(testResult);
+                    
+                    if (testHistory.length > 10) {
+                        testHistory.splice(0, testHistory.length - 10);
+                    }
+                    
+                    localStorage.setItem('browserApiTestHistory', JSON.stringify(testHistory));
+                    
+                    return testResult;
+                }
+            }
+            
+            // 활성화된 API 제공자 가져오기
+            getActiveProvider() {
+                if (this.apiSettings?.chatgpt?.enabled) {
+                    return 'chatgpt';
+                } else if (this.apiSettings?.gemini?.enabled) {
+                    return 'gemini';
+                } else if (this.apiSettings?.claude?.enabled) {
+                    return 'claude';
+                }
+                return null;
+            }
+            
+            // 지식베이스에서 컨텍스트 정보 추출
+            getContextFromKnowledgeBase() {
+                if (!this.knowledgeBase.enabled || this.knowledgeBase.parsedData.length === 0) {
+                    return '';
+                }
+                
+                // 모든 Q&A를 컨텍스트로 정리
+                let context = '\n\n=== 병원 전문 지식 정보 ===\n';
+                this.knowledgeBase.parsedData.forEach((qa, index) => {
+                    context += `${index + 1}. Q: ${qa.question}\n   A: ${qa.answer}\n`;
+                });
+                
+                return context;
+            }
+            
+            // 언어별 예약 텍스트 반환
+            getReservationText() {
+                const texts = {
+                    ko: {
+                        message: '자세한 문의는 방문 상담을 받아보세요!',
+                        button: '📅 예약하기'
+                    },
+                    en: {
+                        message: 'For detailed inquiries, please visit for consultation!',
+                        button: '📅 Make Reservation'
+                    },
+                    ru: {
+                        message: 'Для подробных консультаций, пожалуйста, посетите нас!',
+                        button: '📅 Записаться'
+                    },
+                    ja: {
+                        message: '詳細なお問い合わせは来院相談をお受けください！',
+                        button: '📅 予約する'
+                    }
+                };
+                
+                return texts[this.currentLanguage] || texts['ko'];
+            }
+            
+            // 언어별 전문상담원 텍스트 반환
+            getConsultantText() {
+                const texts = {
+                    ko: {
+                        message: '전문가 상담원에게 1:1 상담 받아보세요!<br><br>(<strong>가능언어</strong> 한국어, 영어, 러시아어, 일본어)<br><br>(<strong>운영시간</strong> 오전9-오후9시, 점심 12시-13시)',
+                        button: '💬 전문가 상담원 1:1'
+                    },
+                    en: {
+                        message: 'Get 1:1 consultation with a professional consultant!<br><br>(<strong>Available Languages</strong> Korean, English, Russian, Japanese)<br><br>(<strong>Operating Hours</strong> 9AM-9PM, Lunch 12PM-1PM)',
+                        button: '💬 Professional Consultant 1:1'
+                    },
+                    ru: {
+                        message: 'Получите индивидуальную консультацию профессионального консультанта!<br><br>(<strong>Доступные языки</strong> корейский, английский, русский, японский)<br><br>(<strong>Часы работы</strong> 9:00-21:00, Обед 12:00-13:00)',
+                        button: '💬 Профессиональный консультант 1:1'
+                    },
+                    ja: {
+                        message: '専門家相談員に1対1相談を受けてください！<br><br>（<strong>対応言語</strong> 韓国語、英語、ロシア語、日本語）<br><br>（<strong>営業時間</strong> 午前9時-午後9時、昼休み 12時-13時）',
+                        button: '💬 専門家相談員 1:1'
+                    }
+                };
+                
+                return texts[this.currentLanguage] || texts['ko'];
+            }
+            
+            // API 호출 함수
+            async callAPI(provider, message, contextInfo, useSmartFiltering = false) {
+                const settings = this.apiSettings[provider];
+                
+                switch (provider) {
+                    case 'chatgpt':
+                        return await this.callChatGPTAPI(message, settings, contextInfo, useSmartFiltering);
+                    case 'gemini':
+                        return await this.callGeminiAPI(message, settings, contextInfo, useSmartFiltering);
+                    case 'claude':
+                        return await this.callClaudeAPI(message, settings, contextInfo, useSmartFiltering);
+                    default:
+                        throw new Error('지원하지 않는 API 제공자입니다.');
+                }
+            }
+            
+            // ChatGPT API 호출
+            async callChatGPTAPI(message, settings, contextInfo, useSmartFiltering = false) {
+                const systemPrompt = `당신은 피닉스 치과의 전문 AI 상담사입니다. 
+                매우 친절하고 전문적으로 답변해주세요.
+
+                병원 기본 정보:
+                • 병원명: 피닉스 치과
+                • 원장: 홍길동 (25년 경력 치주질환 전문의)
+                • 진료시간: 평일 09:00-18:00, 토요일 09:00-15:00, 점심시간 12:30-13:30
+                • 휴진: 일요일, 공휴일
+                • 전화: 070-1234-1234 (24시간 응급상담 가능)
+                • 주소: 경기도 안성시 중앙로 374 메디스퀘어 4층
+                • 교통: 지하철 2호선 강남역 3번 출구 도보 5분
+                • 주차: 건물 지하 1-3층 무료 주차 (3시간)
+                • 진료과목: 일반진료, 미백치료, 교정치료, 임플란트, 보철치료, 소아치과
+
+                치료비 안내:
+                • 일반진료: 초진 15,000원, 재진 10,000원
+                • 스케일링: 50,000원 (건강보험 적용 시 연 1회 무료)
+                • 미백치료: 200,000-300,000원
+                • 교정치료: 1,500,000-6,000,000원
+                • 임플란트: 1,200,000-1,500,000원
+
+                ${contextInfo}
+
+                답변 작성 원칙:
+                1. 매우 친절하고 따뜻한 말투를 사용하세요
+                2. 전문적이면서도 이해하기 쉽게 설명하세요
+                3. 구체적인 정보를 제공하되, 정확하지 않은 의료 진단은 피하세요
+                4. 예약이나 상담이 필요한 경우 적극 안내하세요
+                5. 답변을 구조화하여 읽기 쉽게 정리해주세요
+                6. 진료시간, 치료비용, 예약문의, 오시는길 등 주요 질문에 대해서는 자연스럽고 상세한 설명을 제공하세요
+                7. 사용자의 편의를 고려한 실용적인 조언을 포함해주세요
+                8. 고객이 보기 편하게 정리되어서 나가야 합니다
+                9. 단어와 문장에 적합한 이모티콘도 적절히 사용하세요
+                10. 이전 대화 내용을 참고하여 자연스럽게 대화를 이어가세요
+
+                답변 형식 가이드라인:
+                - 제목은 이모티콘과 함께 자연스럽게 작성 (예: 🏥 병원 안내, 💡 치료 정보)
+                - 중요 정보는 <strong>굵게</strong> 표시하여 강조
+                - 리스트는 • 또는 번호로 정리
+                - 섹션 구분은 큰 괄호 () 사용하여 구분
+                - 인용구는 큰 괄호 () 안에 작성
+                - =, #, ---, ### 등의 특수문자는 사용하지 않음
+                - 문장의 시작과 끝을 의미하는 구분선 대신 자연스러운 줄바꿈 사용
+                - 제목 강조는 글자를 진하게 표시하거나 제목에 적합한 이모티콘을 제목앞에 붙여서 표현
+                - 강조나 구분이 필요한 항목은 큰 괄호 ()를 해서 구분
+                - 전체적으로 고객이 보기 편하고 읽기 쉬운 형식으로 구성`;
+
+                // 대화 이력 가져오기 (스마트 필터링 옵션)
+                const chatHistory = useSmartFiltering ? 
+                    this.getSmartFilteredHistory(message) : 
+                    this.getChatHistoryForAPI();
+                
+                // 메시지 배열 구성 (시스템 프롬프트 + 대화 이력 + 현재 메시지)
+                const messages = [
+                    {
+                        role: "system",
+                        content: systemPrompt
+                    },
+                    ...chatHistory,
+                    {
+                        role: "user",
+                        content: message
+                    }
+                ];
+
+                console.log('🤖 ChatGPT API 호출 - 대화 이력 포함:', {
+                    historyCount: chatHistory.length,
+                    totalMessages: messages.length,
+                    currentMessage: message.substring(0, 100) + '...'
+                });
+
+                // 브라우저별 호환성을 위한 fetch 옵션 설정
+                const fetchOptions = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 브라우저별 호환성을 위한 추가 헤더
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        model: settings.model,
+                        messages: messages,
+                        max_tokens: 800,
+                        temperature: 0.7
+                    })
+                };
+
+                // 브라우저 감지 및 특별 처리
+                const userAgent = navigator.userAgent;
+                const isChrome = /Chrome/.test(userAgent) && !/Edge/.test(userAgent);
+                const isEdge = /Edge/.test(userAgent);
+                const isFirefox = /Firefox/.test(userAgent);
+                const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+                
+                console.log('🌐 브라우저 감지:', {
+                    userAgent: userAgent.substring(0, 100),
+                    isChrome,
+                    isEdge,
+                    isFirefox,
+                    isSafari
+                });
+
+                // Chrome 특별 처리 (캐시 방지)
+                if (isChrome) {
+                    fetchOptions.headers['Cache-Control'] = 'no-cache';
+                    fetchOptions.headers['Pragma'] = 'no-cache';
+                    console.log('🔧 Chrome 브라우저 감지 - 캐시 방지 헤더 추가');
+                }
+
+                // Edge 특별 처리 (타임아웃 설정)
+                if (isEdge) {
+                    console.log('🔧 Edge 브라우저 감지 - 타임아웃 설정 적용');
+                }
+
+                try {
+                    const response = await fetch('/.netlify/functions/ask-ai', fetchOptions);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Edge 브라우저에서 마지막 단어 중복 문제 해결
+                    let content = data.choices[0].message.content;
+                    if (isEdge && content) {
+                        // 마지막 단어 중복 제거 로직
+                        const words = content.split(' ');
+                        if (words.length > 1) {
+                            const lastWord = words[words.length - 1];
+                            const secondLastWord = words[words.length - 2];
+                            if (lastWord === secondLastWord) {
+                                words.pop();
+                                content = words.join(' ');
+                                console.log('🔧 Edge 브라우저: 마지막 단어 중복 제거');
+                            }
+                        }
+                    }
+                    
+                    return content;
+                } catch (error) {
+                    console.error('❌ ChatGPT API 호출 실패:', error);
+                    
+                    // 브라우저별 오류 메시지
+                    const browserErrorMessages = {
+                        ko: {
+                            chrome: 'Chrome 브라우저에서 API 호출 중 오류가 발생했습니다. 다른 브라우저로 시도해보세요.',
+                            edge: 'Edge 브라우저에서 API 호출 중 오류가 발생했습니다. 다른 브라우저로 시도해보세요.',
+                            firefox: 'Firefox 브라우저에서 API 호출 중 오류가 발생했습니다. 다른 브라우저로 시도해보세요.',
+                            safari: 'Safari 브라우저에서 API 호출 중 오류가 발생했습니다. 다른 브라우저로 시도해보세요.',
+                            default: '브라우저에서 API 호출 중 오류가 발생했습니다. 다른 브라우저로 시도해보세요.'
+                        }
+                    };
+                    
+                    let errorMessage = browserErrorMessages.ko.default;
+                    if (isChrome) errorMessage = browserErrorMessages.ko.chrome;
+                    else if (isEdge) errorMessage = browserErrorMessages.ko.edge;
+                    else if (isFirefox) errorMessage = browserErrorMessages.ko.firefox;
+                    else if (isSafari) errorMessage = browserErrorMessages.ko.safari;
+                    
+                    throw new Error(errorMessage);
+                }
+            }
+            
+            // Gemini API 호출
+            async callGeminiAPI(message, settings, contextInfo, useSmartFiltering = false) {
+                // 대화 이력 가져오기 (스마트 필터링 옵션)
+                const chatHistory = useSmartFiltering ? 
+                    this.getSmartFilteredHistory(message) : 
+                    this.getChatHistoryForAPI();
+                
+                // Gemini용 대화 이력 구성
+                let conversationContext = '';
+                if (chatHistory.length > 0) {
+                    conversationContext = '\n\n=== 이전 대화 내용 ===\n';
+                    chatHistory.forEach((msg, index) => {
+                        const role = msg.role === 'user' ? '사용자' : 'AI 상담사';
+                        conversationContext += `${role}: ${msg.content}\n`;
+                    });
+                    conversationContext += '\n=== 현재 질문 ===\n';
+                }
+
+                const prompt = `당신은 피닉스 치과의 전문 AI 상담사입니다. 
+                매우 친절하고 전문적으로 답변해주세요.
+
+                병원 기본 정보:
+                • 병원명: 피닉스 치과
+                • 원장: 홍길동 (25년 경력 치주질환 전문의)
+                • 진료시간: 평일 09:00-18:00, 토요일 09:00-15:00, 점심시간 12:30-13:30
+                • 휴진: 일요일, 공휴일
+                • 전화: 070-1234-1234 (24시간 응급상담 가능)
+                • 주소: 경기도 안성시 중앙로 374 메디스퀘어 4층
+                • 교통: 지하철 2호선 강남역 3번 출구 도보 5분
+                • 주차: 건물 지하 1-3층 무료 주차 (3시간)
+                • 진료과목: 일반진료, 미백치료, 교정치료, 임플란트, 보철치료, 소아치과
+
+                치료비 안내:
+                • 일반진료: 초진 15,000원, 재진 10,000원
+                • 스케일링: 50,000원 (건강보험 적용 시 연 1회 무료)
+                • 미백치료: 200,000-300,000원
+                • 교정치료: 1,500,000-6,000,000원
+                • 임플란트: 1,200,000-1,500,000원
+
+                ${contextInfo}
+
+                답변 작성 원칙:
+                1. 매우 친절하고 따뜻한 말투를 사용하세요
+                2. 전문적이면서도 이해하기 쉽게 설명하세요
+                3. 구체적인 정보를 제공하되, 정확하지 않은 의료 진단은 피하세요
+                4. 예약이나 상담이 필요한 경우 적극 안내하세요
+                5. 답변을 구조화하여 읽기 쉽게 정리해주세요
+                6. 고객이 보기 편하게 정리되어서 나가야 합니다
+                7. 단어와 문장에 적합한 이모티콘도 적절히 사용하세요
+                8. 이전 대화 내용을 참고하여 자연스럽게 대화를 이어가세요
+
+                답변 형식 가이드라인:
+                - 제목은 이모티콘과 함께 자연스럽게 작성 (예: 🏥 병원 안내, 💡 치료 정보)
+                - 중요 정보는 <strong>굵게</strong> 표시하여 강조
+                - 리스트는 • 또는 번호로 정리
+                - 섹션 구분은 큰 괄호 () 사용하여 구분
+                - 인용구는 큰 괄호 () 안에 작성
+                - =, #, ---, ### 등의 특수문자는 사용하지 않음
+                - 문장의 시작과 끝을 의미하는 구분선 대신 자연스러운 줄바꿈 사용
+                - 제목 강조는 글자를 진하게 표시하거나 제목에 적합한 이모티콘을 제목앞에 붙여서 표현
+                - 강조나 구분이 필요한 항목은 큰 괄호 ()를 해서 구분
+                - 전체적으로 고객이 보기 편하고 읽기 쉬운 형식으로 구성
+
+                ${conversationContext}
+                질문: ${message}`;
+
+                console.log('🤖 Gemini API 호출 - 대화 이력 포함:', {
+                    historyCount: chatHistory.length,
+                    conversationContext: conversationContext.substring(0, 100) + '...',
+                    currentMessage: message.substring(0, 100) + '...'
+                });
+
+                const response = await fetch('/.netlify/functions/ask-gemini', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: settings.model,
+                        prompt: prompt,
+                        maxOutputTokens: 800,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            }
+            
+            // Claude API 호출
+            async callClaudeAPI(message, settings, contextInfo, useSmartFiltering = false) {
+                // 대화 이력 가져오기 (스마트 필터링 옵션)
+                const chatHistory = useSmartFiltering ? 
+                    this.getSmartFilteredHistory(message) : 
+                    this.getChatHistoryForAPI();
+                
+                // Claude용 대화 이력 구성
+                let conversationContext = '';
+                if (chatHistory.length > 0) {
+                    conversationContext = '\n\n=== 이전 대화 내용 ===\n';
+                    chatHistory.forEach((msg, index) => {
+                        const role = msg.role === 'user' ? '사용자' : 'AI 상담사';
+                        conversationContext += `${role}: ${msg.content}\n`;
+                    });
+                    conversationContext += '\n=== 현재 질문 ===\n';
+                }
+
+                const prompt = `당신은 피닉스 치과의 전문 AI 상담사입니다. 
+                매우 친절하고 전문적으로 답변해주세요.
+
+                병원 기본 정보:
+                • 병원명: 피닉스 치과
+                • 원장: 홍길동 (25년 경력 치주질환 전문의)
+                • 진료시간: 평일 09:00-18:00, 토요일 09:00-15:00, 점심시간 12:30-13:30
+                • 휴진: 일요일, 공휴일
+                • 전화: 070-1234-1234 (24시간 응급상담 가능)
+                • 주소: 경기도 안성시 중앙로 374 메디스퀘어 4층
+                • 교통: 지하철 2호선 강남역 3번 출구 도보 5분
+                • 주차: 건물 지하 1-3층 무료 주차 (3시간)
+                • 진료과목: 일반진료, 미백치료, 교정치료, 임플란트, 보철치료, 소아치과
+
+                치료비 안내:
+                • 일반진료: 초진 15,000원, 재진 10,000원
+                • 스케일링: 50,000원 (건강보험 적용 시 연 1회 무료)
+                • 미백치료: 200,000-300,000원
+                • 교정치료: 1,500,000-6,000,000원
+                • 임플란트: 1,200,000-1,500,000원
+
+                ${contextInfo}
+
+                답변 작성 원칙:
+                1. 매우 친절하고 따뜻한 말투를 사용하세요
+                2. 전문적이면서도 이해하기 쉽게 설명하세요
+                3. 구체적인 정보를 제공하되, 정확하지 않은 의료 진단은 피하세요
+                4. 예약이나 상담이 필요한 경우 적극 안내하세요
+                5. 답변을 구조화하여 읽기 쉽게 정리해주세요
+                6. 고객이 보기 편하게 정리되어서 나가야 합니다
+                7. 단어와 문장에 적합한 이모티콘도 적절히 사용하세요
+                8. 이전 대화 내용을 참고하여 자연스럽게 대화를 이어가세요
+
+                답변 형식 가이드라인:
+                - 제목은 이모티콘과 함께 자연스럽게 작성 (예: 🏥 병원 안내, 💡 치료 정보)
+                - 중요 정보는 <strong>굵게</strong> 표시하여 강조
+                - 리스트는 • 또는 번호로 정리
+                - 섹션 구분은 큰 괄호 () 사용하여 구분
+                - 인용구는 큰 괄호 () 안에 작성
+                - =, #, ---, ### 등의 특수문자는 사용하지 않음
+                - 문장의 시작과 끝을 의미하는 구분선 대신 자연스러운 줄바꿈 사용
+                - 제목 강조는 글자를 진하게 표시하거나 제목에 적합한 이모티콘을 제목앞에 붙여서 표현
+                - 강조나 구분이 필요한 항목은 큰 괄호 ()를 해서 구분
+                - 전체적으로 고객이 보기 편하고 읽기 쉬운 형식으로 구성
+
+                ${conversationContext}
+                질문: ${message}`;
+
+                console.log('🤖 Claude API 호출 - 대화 이력 포함:', {
+                    historyCount: chatHistory.length,
+                    conversationContext: conversationContext.substring(0, 100) + '...',
+                    currentMessage: message.substring(0, 100) + '...'
+                });
+
+                const response = await fetch('/.netlify/functions/ask-claude', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: settings.model,
+                        max_tokens: 800,
+                        messages: [{
+                            role: "user",
+                            content: prompt
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                return data.content[0].text;
+            }
+            
+            // AI 응답 포맷팅
+            formatAIResponse(response, provider) {
+                const reservationText = this.getReservationText();
+                const consultantText = this.getConsultantText();
+                
+                // AI 답변을 깔끔하게 정리
+                const formattedResponse = this.formatAIResponseContent(response);
+                
+                return `${formattedResponse}
+                
+                <div class="reservation-message">
+                    <div class="reservation-message-text">${consultantText.message}</div>
+                    <button class="reservation-button" onclick="window.open('http://pf.kakao.com/_DiIin/chat', '_blank')">${consultantText.button}</button>
+                </div>
+                <div class="reservation-message">
+                    <div class="reservation-message-text">${reservationText.message}</div>
+                    <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+                </div>`;
+            }
+            
+            // AI 응답 내용 포맷팅
+            formatAIResponseContent(response) {
+                // 줄바꿈을 <br>로 변환
+                let formatted = response.replace(/\n/g, '<br>');
+                
+                // 강조 텍스트 처리 (**텍스트** -> <strong>텍스트</strong>)
+                formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // 리스트 항목 처리 (• 또는 - 로 시작하는 줄)
+                formatted = formatted.replace(/^[•\-]\s*(.*?)$/gm, '<div style="margin: 5px 0; padding-left: 15px;">• $1</div>');
+                
+                // 번호가 있는 리스트 처리 (1. 2. 등)
+                formatted = formatted.replace(/^(\d+)\.\s*(.*?)$/gm, '<div style="margin: 5px 0; padding-left: 15px;">$1. $2</div>');
+                
+                // 섹션 구분선 처리 (=== 또는 ---) - 제거하고 간단한 구분선으로 변경
+                formatted = formatted.replace(/^={3,}$/gm, '<div style="height: 1px; background: #e9ecef; margin: 15px 0;"></div>');
+                formatted = formatted.replace(/^-{3,}$/gm, '<div style="height: 1px; background: #e9ecef; margin: 10px 0;"></div>');
+                
+                // 제목 처리 (### 제목) - 이모티콘과 함께 간단하게
+                formatted = formatted.replace(/^###\s*(.*?)$/gm, '<div style="font-size: 16px; font-weight: bold; color: #2c3e50; margin: 15px 0 10px 0;">📋 $1</div>');
+                
+                // 부제목 처리 (## 제목) - 이모티콘과 함께 간단하게
+                formatted = formatted.replace(/^##\s*(.*?)$/gm, '<div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin: 20px 0 10px 0;">💡 $1</div>');
+                
+                // 메인 제목 처리 (# 제목) - 이모티콘과 함께 간단하게
+                formatted = formatted.replace(/^#\s*(.*?)$/gm, '<div style="font-size: 20px; font-weight: bold; color: #2c3e50; margin: 25px 0 15px 0;">🏥 $1</div>');
+                
+                // 인용구 처리 (> 텍스트) - 간단한 박스로 변경
+                formatted = formatted.replace(/^>\s*(.*?)$/gm, '<div style="background: #f8f9fa; padding: 10px 15px; margin: 10px 0; border-radius: 5px; border-left: 3px solid #4facfe;">💬 $1</div>');
+                
+                // 코드 블록 처리 (```코드```) - 제거
+                formatted = formatted.replace(/```(.*?)```/gs, '');
+                
+                // 인라인 코드 처리 (`코드`) - 제거
+                formatted = formatted.replace(/`(.*?)`/g, '$1');
+                
+                // 큰 괄호로 감싸진 텍스트 강조 처리
+                formatted = formatted.replace(/\((.*?)\)/g, '<span style="color: #4facfe; font-weight: 600;">($1)</span>');
+                
+                return formatted;
+            }
+            
+            // AI 응답 생성
+            async generateAIResponse(message, useSmartFiltering = false) {
+                const loadingMessages = {
+                    ko: '👩‍⚕️ 피닉스 치과 AI 상담사가 답변을 준비 중 입니다...⏰<span class="loading-dots"></span>',
+                    en: '👩‍⚕️ Phoenix Dental AI consultant is preparing an answer...⏰<span class="loading-dots"></span>',
+                    ru: '👩‍⚕️ Консультант ИИ Phoenix готовит ответ...⏰<span class="loading-dots"></span>',
+                    ja: '👩‍⚕️ 피닉스歯科AIコンサルタントが回答を準備中です...⏰<span class="loading-dots"></span>'
+                };
+                
+                const loadingMessage = this.addBotMessage(loadingMessages[this.currentLanguage] || loadingMessages['ko']);
+                
+                try {
+                    // API 호출 로직
+                    const activeProvider = this.getActiveProvider();
+                    const contextInfo = this.getContextFromKnowledgeBase();
+                    
+                    // 스마트 필터링 옵션 전달
+                    const response = await this.callAPI(activeProvider, message, contextInfo, useSmartFiltering);
+                    this.removeMessage(loadingMessage);
+                    this.addBotMessage(this.formatAIResponse(response, activeProvider));
+                } catch (error) {
+                    console.error('AI API 호출 실패:', error);
+                    this.removeMessage(loadingMessage);
+                    
+                    const apiErrorMessages = {
+                        ko: '🤖 AI API 호출 중 오류가 발생했습니다. 기본 답변을 제공합니다.',
+                        en: '🤖 An error occurred while calling AI API. Providing default answer.',
+                        ru: '🤖 Произошла ошибка при вызове ИИ API. Предоставляется базовый ответ.',
+                        ja: '🤖 AI API呼び出し中にエラーが発生しました。デフォルト回答を提供します。'
+                    };
+                    
+                    this.addBotMessage(apiErrorMessages[this.currentLanguage] || apiErrorMessages['ko']);
+                    const fallbackResponse = this.generateSimulatedResponse(message);
+                    this.addBotMessage(fallbackResponse);
+                }
+            }
+            
+            // 시뮬레이션된 응답 생성 (더 자연스럽게)
+            generateSimulatedResponse(message) {
+                const responses = {
+                    ko: [
+                        `안녕하세요! "${message}"에 대한 답변을 도와드리겠습니다.`,
+                        '피닉스 치과 AI 상담사입니다. 더 자세한 상담이 필요하시면 언제든 연락주세요!',
+                        '궁금한 점이 있으시면 진료시간, 치료비용, 예약, 오시는길 등을 입력해보세요.'
+                    ],
+                    en: [
+                        `Hello! I'll help you with an answer about "${message}".`,
+                        'I am Phoenix Dental AI consultant. Please contact us anytime if you need more detailed consultation!',
+                        'If you have any questions, please try entering clinic hours, treatment costs, reservation, directions, etc.'
+                    ],
+                    ru: [
+                        `Здравствуйте! Я помогу вам с ответом на "${message}".`,
+                        'Я консультант ИИ стоматологии Phoenix. Пожалуйста, обращайтесь в любое время, если вам нужна более подробная консультация!',
+                        'Если у вас есть вопросы, попробуйте ввести часы работы, стоимость лечения, запись, как добраться и т.д.'
+                    ],
+                    ja: [
+                        `こんにちは！"${message}"についての回答をお手伝いします。`,
+                        '피닉스歯科AIコンサルタントです。より詳細な相談が必要でしたら、いつでもご連絡ください！',
+                        'ご質問がございましたら、診療時間、治療費、予約、アクセスなどを入力してみてください。'
+                    ]
+                };
+                
+                const quickMenu = {
+                    ko: {
+                        title: '💡 <strong>빠른 문의 메뉴</strong>',
+                        clinicHours: '• "진료시간" - 병원 운영시간 안내',
+                        treatmentCost: '• "치료비용" - 치료비 정보',
+                        reservation: '• "예약" - 예약 및 상담 문의',
+                        directions: '• "오시는길" - 병원 위치 안내',
+                        directInquiry: '📞 <strong>직접 문의:</strong> 070-1234-1234'
+                    },
+                    en: {
+                        title: '💡 <strong>Quick Inquiry Menu</strong>',
+                        clinicHours: '• "Clinic Hours" - Hospital operating hours',
+                        treatmentCost: '• "Treatment Cost" - Treatment cost information',
+                        reservation: '• "Reservation" - Reservation and consultation inquiry',
+                        directions: '• "Directions" - Hospital location guide',
+                        directInquiry: '📞 <strong>Direct Inquiry:</strong> 070-1234-1234'
+                    },
+                    ru: {
+                        title: '💡 <strong>Быстрое меню запросов</strong>',
+                        clinicHours: '• "Часы работы" - Часы работы больницы',
+                        treatmentCost: '• "Стоимость лечения" - Информация о стоимости лечения',
+                        reservation: '• "Запись" - Запись и консультация',
+                        directions: '• "Как добраться" - Как найти больницу',
+                        directInquiry: '📞 <strong>Прямой запрос:</strong> 070-1234-1234'
+                    },
+                    ja: {
+                        title: '💡 <strong>クイック問い合わせメニュー</strong>',
+                        clinicHours: '• "診療時間" - 病院営業時間案内',
+                        treatmentCost: '• "治療費" - 治療費情報',
+                        reservation: '• "予約" - 予約・相談問い合わせ',
+                        directions: '• "アクセス" - 病院所在地案内',
+                        directInquiry: '📞 <strong>直接問い合わせ:</strong> 070-1234-1234'
+                    }
+                };
+                
+                const apiStatus = {
+                    ko: this.hasActiveAPI() ? 
+                        '🤖 AI API가 연결되어 있어 더 정확한 답변을 제공할 수 있습니다.' : 
+                        '❌ AI API가 설정되지 않아 기본 답변을 제공합니다. (관리자 메뉴에서 AI API 설정 가능)',
+                    en: this.hasActiveAPI() ? 
+                        '🤖 AI API is connected and can provide more accurate answers.' : 
+                        '❌ AI API is not set up, providing basic answers. (AI API can be set up in admin menu)',
+                    ru: this.hasActiveAPI() ? 
+                        '🤖 ИИ API подключен и может предоставить более точные ответы.' : 
+                        '❌ ИИ API не настроен, предоставляются базовые ответы. (ИИ API можно настроить в меню администратора)',
+                    ja: this.hasActiveAPI() ? 
+                        '🤖 AI APIが接続されており、より正確な回答を提供できます。' : 
+                        '❌ AI APIが設定されていないため、基本的な回答を提供します。（管理者メニューでAI API設定可能）'
+                };
+                
+                const currentResponses = responses[this.currentLanguage] || responses['ko'];
+                const currentQuickMenu = quickMenu[this.currentLanguage] || quickMenu['ko'];
+                const currentApiStatus = apiStatus[this.currentLanguage] || apiStatus['ko'];
+                const reservationText = this.getReservationText();
+                
+                return currentResponses[Math.floor(Math.random() * currentResponses.length)] + `
+                
+<div style="margin: 15px 0;">
+${currentQuickMenu.title}
+</div>
+
+<div style="margin: 10px 0;">
+${currentQuickMenu.clinicHours}
+${currentQuickMenu.treatmentCost}
+${currentQuickMenu.reservation}
+${currentQuickMenu.directions}
+</div>
+
+<div style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4facfe;">
+${currentApiStatus}
+</div>
+
+<div style="margin: 15px 0;">
+${currentQuickMenu.directInquiry}
+</div>
+
+<div class="reservation-message">
+    <div class="reservation-message-text">${reservationText.message}</div>
+    <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+</div>`;
+            }
+            
+            // 사용자 메시지 추가
+            addUserMessage(message) {
+                const messagesContainer = document.getElementById('chatbotMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user';
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">👤</div>
+                    <div class="message-content">${this.escapeHtml(message)}</div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+                this.scrollToBottom();
+                
+                // 대화 이력에 사용자 메시지 추가
+                this.addToChatHistory('user', message);
+            }
+            
+            // 봇 메시지 추가
+            addBotMessage(message) {
+                const messagesContainer = document.getElementById('chatbotMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot';
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">👩‍⚕️</div>
+                    <div class="message-content">${message}</div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+                this.scrollToBottom();
+                
+                // 대화 이력에 봇 메시지 추가 (HTML 태그 제거)
+                const cleanMessage = this.stripHtmlTags(message);
+                this.addToChatHistory('assistant', cleanMessage);
+                
+                return messageDiv;
+            }
+            
+            // 대화 이력에 메시지 추가
+            addToChatHistory(role, content) {
+                this.chatHistory.push({
+                    role: role,
+                    content: content,
+                    timestamp: Date.now()
+                });
+                
+                // 최대 이력 개수 제한
+                if (this.chatHistory.length > this.MAX_HISTORY * 2) {
+                    this.chatHistory = this.chatHistory.slice(-this.MAX_HISTORY * 2);
+                }
+                
+                console.log(`💬 대화 이력 추가: ${role} - ${content.substring(0, 50)}...`);
+            }
+            
+            // HTML 태그 제거
+            stripHtmlTags(html) {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                return div.textContent || div.innerText || '';
+            }
+            
+            // AI API용 대화 이력 가져오기
+            getChatHistoryForAPI() {
+                // 최근 N개 메시지만 반환 (토큰 한도 고려)
+                const recentHistory = this.chatHistory.slice(-this.MAX_HISTORY);
+                
+                // AI API 형식으로 변환
+                return recentHistory.map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                }));
+            }
+            
+            // 대화 이력 초기화
+            clearChatHistory() {
+                this.chatHistory = [];
+                console.log('🗑️ 대화 이력 초기화 완료');
+            }
+            
+            // HTML 이스케이프
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // 메시지 제거
+            removeMessage(messageElement) {
+                if (messageElement && messageElement.parentNode) {
+                    messageElement.parentNode.removeChild(messageElement);
+                }
+            }
+            
+            // 스크롤 하단 이동
+            scrollToBottom() {
+                const messagesContainer = document.getElementById('chatbotMessages');
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+            
+            // 환영 메시지 추가
+            addWelcomeMessage() {
+                const t = this.translations[this.currentLanguage];
+                
+                const quickButtons = {
+                    ko: {
+                        clinicHours: { text: '🕘 진료시간', message: '진료시간 알려주세요' },
+                        treatmentCost: { text: '💰 치료비용', message: '치료비용 궁금해요' },
+                        reservation: { text: '📞 예약문의', message: '예약문의 하고싶어요' },
+                        directions: { text: '🗺️ 오시는길', message: '오시는길 알려주세요' }
+                    },
+                    en: {
+                        clinicHours: { text: '🕘 Clinic Hours', message: 'Tell me about clinic hours' },
+                        treatmentCost: { text: '💰 Treatment Cost', message: 'I want to know about treatment costs' },
+                        reservation: { text: '📞 Reservation', message: 'I want to make a reservation inquiry' },
+                        directions: { text: '🗺️ Directions', message: 'Tell me how to get there' }
+                    },
+                    ru: {
+                        clinicHours: { text: '🕘 Часы работы', message: 'Расскажите о часах работы' },
+                        treatmentCost: { text: '💰 Стоимость лечения', message: 'Хочу узнать о стоимости лечения' },
+                        reservation: { text: '📞 Запись', message: 'Хочу записаться на консультацию' },
+                        directions: { text: '🗺️ Как добраться', message: 'Расскажите как добраться' }
+                    },
+                    ja: {
+                        clinicHours: { text: '🕘 診療時間', message: '診療時間を教えてください' },
+                        treatmentCost: { text: '💰 治療費', message: '治療費について知りたいです' },
+                        reservation: { text: '📞 予約', message: '予約相談をしたいです' },
+                        directions: { text: '🗺️ アクセス', message: 'アクセス方法を教えてください' }
+                    }
+                };
+                
+                const currentButtons = quickButtons[this.currentLanguage] || quickButtons['ko'];
+                
+                const welcomeMessage = `
+                    <div style="text-align: center; color: #333;">
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #2c3e50;">
+                            ${t.welcomeMessage}
+                        </div>
+                        <div style="font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 15px;">
+                            ${t.welcomeSubMessage}
+                        </div>
+                        <div class="quick-buttons">
+                            <button class="quick-button clinic-hours-btn" onclick="chatbot.handleQuickMessage('${currentButtons.clinicHours.message}')">
+                                ${currentButtons.clinicHours.text}
+                            </button>
+                            <button class="quick-button treatment-cost-btn" onclick="chatbot.handleQuickMessage('${currentButtons.treatmentCost.message}')">
+                                ${currentButtons.treatmentCost.text}
+                            </button>
+                            <button class="quick-button reservation-btn" onclick="chatbot.handleQuickMessage('${currentButtons.reservation.message}')">
+                                ${currentButtons.reservation.text}
+                            </button>
+                            <button class="quick-button directions-btn" onclick="chatbot.handleQuickMessage('${currentButtons.directions.message}')">
+                                ${currentButtons.directions.text}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                this.addBotMessage(welcomeMessage);
+            }
+            
+            // 빠른 메시지 처리
+            handleQuickMessage(message) {
+                console.log('⚡ 빠른 메시지:', message);
+                this.addUserMessage(message);
+                this.processMessage(message);
+            }
+            
+                    // 언어 UI 업데이트
+        updateLanguageUI() {
+            const t = this.translations[this.currentLanguage];
+            
+            document.querySelector('.chatbot-title').textContent = t.title;
+            document.getElementById('chatbotInput').placeholder = t.placeholder;
+            document.querySelector('.chatbot-send').textContent = t.sendButton;
+            document.getElementById('currentLanguageText').textContent = t.currentLanguage;
+            
+            // 드롭다운 옵션 업데이트
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-lang') === this.currentLanguage) {
+                    option.classList.add('active');
+                }
+            });
+        }
+        
+        // 이벤트 리스너 설정
+        setupEventListeners() {
+            // 안드로이드 카카오톡 브라우저 최적화된 드롭다운 처리
+            this.setupLanguageDropdown();
+            
+            // 외부 클릭 시 드롭다운 닫기 (안드로이드 최적화)
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.language-dropdown')) {
+                    this.closeLanguageMenu();
+                }
+            });
+            
+            // 터치 이벤트로 외부 클릭 감지 (안드로이드 대응)
+            document.addEventListener('touchend', (e) => {
+                if (!e.target.closest('.language-dropdown')) {
+                    this.closeLanguageMenu();
+                }
+            });
+        }
+        
+        // 언어 드롭다운 설정 (안드로이드 카카오톡 브라우저 최적화)
+        setupLanguageDropdown() {
+            const languageButton = document.querySelector('.language-current');
+            const languageMenu = document.getElementById('languageMenu');
+            
+            if (!languageButton || !languageMenu) return;
+            
+            // 브라우저 감지
+            const userAgent = navigator.userAgent;
+            const isAndroidKakao = /Android/.test(userAgent) && /KAKAO/.test(userAgent);
+            const isWindows = /Windows/.test(userAgent);
+            const isChrome = /Chrome/.test(userAgent) && !/Edge/.test(userAgent);
+            const isEdge = /Edge/.test(userAgent);
+            const isFirefox = /Firefox/.test(userAgent);
+            
+            console.log('브라우저 감지:', {
+                userAgent: userAgent,
+                isAndroidKakao: isAndroidKakao,
+                isWindows: isWindows,
+                isChrome: isChrome,
+                isEdge: isEdge,
+                isFirefox: isFirefox
+            });
+            
+            if (isAndroidKakao) {
+                // 안드로이드 카카오톡 브라우저용 터치 이벤트 처리
+                let touchStartTime = 0;
+                let touchEndTime = 0;
+                let isMenuOpen = false;
+                
+                // 터치 시작
+                languageButton.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    touchStartTime = Date.now();
+                    console.log('안드로이드 카카오톡: 터치 시작');
+                }, { passive: false });
+                
+                // 터치 종료
+                languageButton.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    touchEndTime = Date.now();
+                    const touchDuration = touchEndTime - touchStartTime;
+                    
+                    console.log('안드로이드 카카오톡: 터치 종료, 지속시간:', touchDuration);
+                    
+                    // 짧은 터치만 처리 (1초 미만)
+                    if (touchDuration < 1000) {
+                        if (isMenuOpen) {
+                            this.closeLanguageMenu();
+                            isMenuOpen = false;
+                        } else {
+                            this.openLanguageMenu();
+                            isMenuOpen = true;
+                        }
+                    }
+                }, { passive: false });
+                
+                // 클릭 이벤트도 함께 처리 (백업)
+                languageButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('안드로이드 카카오톡: 클릭 이벤트');
+                    
+                    if (isMenuOpen) {
+                        this.closeLanguageMenu();
+                        isMenuOpen = false;
+                    } else {
+                        this.openLanguageMenu();
+                        isMenuOpen = true;
+                    }
+                });
+                
+                // 언어 옵션 선택 시 메뉴 닫기
+                document.querySelectorAll('.language-option').forEach(option => {
+                    option.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('안드로이드 카카오톡: 언어 옵션 선택');
+                        isMenuOpen = false;
+                    }, { passive: false });
+                    
+                    option.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('안드로이드 카카오톡: 언어 옵션 클릭');
+                        isMenuOpen = false;
+                    });
+                });
+                
+            } else {
+                // 윈도우 브라우저 및 일반 브라우저용 처리
+                let isMenuOpen = false;
+                
+                // 클릭 이벤트 처리
+                languageButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('윈도우/일반 브라우저: 클릭 이벤트');
+                    
+                    if (isMenuOpen) {
+                        this.closeLanguageMenu();
+                        isMenuOpen = false;
+                    } else {
+                        this.openLanguageMenu();
+                        isMenuOpen = true;
+                    }
+                });
+                
+                // 마우스 이벤트 처리 (윈도우 브라우저 최적화)
+                if (isWindows) {
+                    languageButton.addEventListener('mouseenter', (e) => {
+                        console.log('윈도우 브라우저: 마우스 진입');
+                    });
+                    
+                    languageButton.addEventListener('mouseleave', (e) => {
+                        console.log('윈도우 브라우저: 마우스 이탈');
+                    });
+                }
+                
+                // 언어 옵션 선택 시 메뉴 닫기
+                document.querySelectorAll('.language-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('윈도우/일반 브라우저: 언어 옵션 클릭');
+                        isMenuOpen = false;
+                    });
+                    
+                    // 마우스 이벤트도 추가
+                    option.addEventListener('mouseenter', (e) => {
+                        console.log('언어 옵션 마우스 진입');
+                    });
+                    
+                    option.addEventListener('mouseleave', (e) => {
+                        console.log('언어 옵션 마우스 이탈');
+                    });
+                });
+            }
+        }
+        
+        // 언어 메뉴 열기
+        openLanguageMenu() {
+            const menu = document.getElementById('languageMenu');
+            if (menu) {
+                menu.classList.add('show');
+                console.log('언어 메뉴 열기');
+            }
+        }
+        
+        // 언어 메뉴 닫기
+        closeLanguageMenu() {
+            const menu = document.getElementById('languageMenu');
+            if (menu) {
+                menu.classList.remove('show');
+                console.log('언어 메뉴 닫기');
+            }
+        }
+        
+        // 언어 메뉴 토글
+        toggleLanguageMenu() {
+            const menu = document.getElementById('languageMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+                console.log('언어 메뉴 토글');
+            }
+        }
+            
+                    // 모바일 최적화 설정
+        setupMobileOptimization() {
+            this.setViewportHeight();
+            window.addEventListener('resize', () => this.setViewportHeight());
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => this.setViewportHeight(), 100);
+            });
+            
+            // 키보드 감지
+            this.setupKeyboardDetection();
+            
+            // 안드로이드 카카오톡 브라우저 감지 및 최적화
+            this.detectAndroidKakaoBrowser();
+        }
+        
+        // 브라우저 감지 (안드로이드 카카오톡 + 윈도우 브라우저)
+        detectAndroidKakaoBrowser() {
+            const userAgent = navigator.userAgent;
+            const isAndroid = /Android/.test(userAgent);
+            const isKakao = /KAKAO/.test(userAgent);
+            const isWindows = /Windows/.test(userAgent);
+            const isChrome = /Chrome/.test(userAgent) && !/Edge/.test(userAgent);
+            const isEdge = /Edge/.test(userAgent);
+            const isFirefox = /Firefox/.test(userAgent);
+            
+            console.log('브라우저 감지 결과:', {
+                isAndroid: isAndroid,
+                isKakao: isKakao,
+                isWindows: isWindows,
+                isChrome: isChrome,
+                isEdge: isEdge,
+                isFirefox: isFirefox
+            });
+            
+            if (isAndroid && isKakao) {
+                console.log('안드로이드 카카오톡 브라우저 감지됨');
+                document.body.classList.add('android-kakao');
+                
+                // 안드로이드 카카오톡 브라우저 특별 최적화
+                this.setupAndroidKakaoOptimizations();
+            } else if (isWindows) {
+                console.log('윈도우 브라우저 감지됨');
+                document.body.classList.add('windows-browser');
+                
+                // 윈도우 브라우저 특별 최적화
+                this.setupWindowsBrowserOptimizations();
+            }
+        }
+        
+        // 안드로이드 카카오톡 브라우저 최적화
+        setupAndroidKakaoOptimizations() {
+            // 터치 이벤트 최적화
+            const allButtons = document.querySelectorAll('button, .language-current, .language-option');
+            allButtons.forEach(button => {
+                button.style.setProperty('-webkit-tap-highlight-color', 'transparent', 'important');
+                button.style.setProperty('touch-action', 'manipulation', 'important');
+                button.style.setProperty('-webkit-touch-callout', 'none', 'important');
+                button.style.setProperty('-webkit-user-select', 'none', 'important');
+                button.style.setProperty('user-select', 'none', 'important');
+            });
+            
+            // 스크롤 최적화
+            const messagesContainer = document.getElementById('chatbotMessages');
+            if (messagesContainer) {
+                messagesContainer.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+                messagesContainer.style.setProperty('overscroll-behavior', 'contain', 'important');
+            }
+            
+            console.log('안드로이드 카카오톡 브라우저 최적화 적용 완료');
+        }
+        
+        // 윈도우 브라우저 최적화
+        setupWindowsBrowserOptimizations() {
+            // 마우스 이벤트 최적화
+            const allButtons = document.querySelectorAll('button, .language-current, .language-option');
+            allButtons.forEach(button => {
+                button.style.setProperty('cursor', 'pointer', 'important');
+                button.style.setProperty('user-select', 'none', 'important');
+                button.style.setProperty('-webkit-user-select', 'none', 'important');
+            });
+            
+            // 언어 드롭다운 버튼 특별 최적화
+            const languageButton = document.querySelector('.language-current');
+            if (languageButton) {
+                languageButton.style.setProperty('transition', 'all 0.2s ease', 'important');
+                languageButton.style.setProperty('cursor', 'pointer', 'important');
+                
+                // 호버 효과 강화
+                languageButton.addEventListener('mouseenter', () => {
+                    languageButton.style.setProperty('transform', 'translateY(-1px)', 'important');
+                    languageButton.style.setProperty('box-shadow', '0 4px 12px rgba(255, 215, 0, 0.5)', 'important');
+                });
+                
+                languageButton.addEventListener('mouseleave', () => {
+                    languageButton.style.setProperty('transform', 'translateY(0)', 'important');
+                    languageButton.style.setProperty('box-shadow', '0 3px 10px rgba(255, 215, 0, 0.4)', 'important');
+                });
+            }
+            
+            // 언어 옵션 호버 효과
+            const languageOptions = document.querySelectorAll('.language-option');
+            languageOptions.forEach(option => {
+                option.style.setProperty('transition', 'all 0.2s ease', 'important');
+                option.style.setProperty('cursor', 'pointer', 'important');
+                
+                option.addEventListener('mouseenter', () => {
+                    option.style.setProperty('background', 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)', 'important');
+                    option.style.setProperty('transform', 'translateX(2px)', 'important');
+                });
+                
+                option.addEventListener('mouseleave', () => {
+                    if (!option.classList.contains('active')) {
+                        option.style.setProperty('background', 'transparent', 'important');
+                    }
+                    option.style.setProperty('transform', 'translateX(0)', 'important');
+                });
+            });
+            
+            console.log('윈도우 브라우저 최적화 적용 완료');
+        }
+            
+            // 뷰포트 높이 설정
+            setViewportHeight() {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }
+            
+            // 키보드 감지 설정
+            setupKeyboardDetection() {
+                const initialHeight = window.innerHeight;
+                
+                window.addEventListener('resize', () => {
+                    const currentHeight = window.innerHeight;
+                    const heightDiff = initialHeight - currentHeight;
+                    
+                    if (heightDiff > 150) {
+                        document.body.classList.add('keyboard-open');
+                    } else {
+                        document.body.classList.remove('keyboard-open');
+                    }
+                });
+            }
+            
+            // API 설정 로딩
+            loadApiSettings() {
+                try {
+                    const saved = localStorage.getItem('chatbotApiSettings');
+                    if (saved) {
+                        this.apiSettings = JSON.parse(saved);
+                        console.log('✅ API 설정 로드 완료:', this.apiSettings);
+                    } else {
+                        this.apiSettings = {
+                            chatgpt: { enabled: true, apiKey: '', model: 'gpt-5.2' },
+                            gemini: { enabled: false, apiKey: '', model: '' },
+                            claude: { enabled: false, apiKey: '', model: '' }
+                        };
+                        console.log('✅ 기본 API 설정 초기화 완료');
+                    }
+                } catch (error) {
+                    console.error('❌ API 설정 로드 실패:', error);
+                    this.apiSettings = {
+                        chatgpt: { enabled: true, apiKey: '', model: 'gpt-5.2' },
+                        gemini: { enabled: false, apiKey: '', model: '' },
+                        claude: { enabled: false, apiKey: '', model: '' }
+                    };
+                }
+            }
+            
+            // 지식베이스 설정 로딩
+            loadKnowledgeBaseSettings() {
+                try {
+                    const saved = localStorage.getItem('chatbotKnowledgeBase');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        this.knowledgeBase.enabled = parsed.enabled || false;
+                        this.knowledgeBase.parsedData = parsed.parsedData || [];
+                        console.log('✅ 지식베이스 설정 로드 완료:', this.knowledgeBase.parsedData.length, '개 Q&A');
+                    }
+                } catch (error) {
+                    console.error('❌ 지식베이스 설정 로드 실패:', error);
+                }
+            }
+            
+            // 대화 이력 설정 로딩
+            loadHistorySettings() {
+                try {
+                    const saved = localStorage.getItem('chatbotHistorySettings');
+                    if (saved) {
+                        const settings = JSON.parse(saved);
+                        this.MAX_HISTORY = settings.maxHistory || 20;
+                        this.MAX_TOKENS = settings.maxTokens || 1500;
+                        console.log('✅ 대화 이력 설정 로드 완료:', {
+                            maxHistory: this.MAX_HISTORY,
+                            maxTokens: this.MAX_TOKENS
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ 대화 이력 설정 로드 실패:', error);
+                }
+            }
+            
+            // API 상태 표시 업데이트 (브라우저별 호환성 개선)
+            updateApiStatusDisplay() {
+                const apiStatus = document.getElementById('apiStatus');
+                if (!apiStatus) return; // 요소가 없으면 리턴
+                
+                // 브라우저 감지
+                const userAgent = navigator.userAgent;
+                const isChrome = /Chrome/.test(userAgent) && !/Edge/.test(userAgent);
+                const isEdge = /Edge/.test(userAgent);
+                const isFirefox = /Firefox/.test(userAgent);
+                const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+                const isKakaoTalk = /KAKAO/.test(userAgent);
+                
+                if (!this.hasActiveAPI()) {
+                    apiStatus.innerHTML = '🔴 AI OFF';
+                    apiStatus.className = 'ai-off';
+                    
+                    // 브라우저별 추가 정보 표시
+                    if (isChrome) {
+                        apiStatus.title = 'Chrome 브라우저에서 API 연결 문제가 있을 수 있습니다. Edge나 다른 브라우저로 시도해보세요.';
+                    } else if (isEdge) {
+                        apiStatus.title = 'Edge 브라우저에서 정상 작동합니다.';
+                    } else if (isFirefox) {
+                        apiStatus.title = 'Firefox 브라우저에서 API 연결을 확인해주세요.';
+                    } else if (isSafari) {
+                        apiStatus.title = 'Safari 브라우저에서 API 연결을 확인해주세요.';
+                    } else if (isKakaoTalk) {
+                        apiStatus.title = '카카오톡 브라우저에서 정상 작동합니다.';
+                    }
+                    return;
+                }
+                
+                const activeApis = [];
+                if (this.apiSettings?.chatgpt?.enabled) activeApis.push('ChatGPT');
+                if (this.apiSettings?.gemini?.enabled) activeApis.push('Gemini');
+                if (this.apiSettings?.claude?.enabled) activeApis.push('Claude');
+                
+                // 브라우저별 상태 메시지
+                let statusText = `<span class="blink">🟢</span> AI ON`;
+                let statusTitle = `활성화된 API: ${activeApis.join(', ')}`;
+                
+                if (isChrome) {
+                    statusTitle += ' (Chrome 브라우저 - 문제 발생 시 Edge로 시도해보세요)';
+                } else if (isEdge) {
+                    statusTitle += ' (Edge 브라우저 - 정상 작동)';
+                } else if (isFirefox) {
+                    statusTitle += ' (Firefox 브라우저)';
+                } else if (isSafari) {
+                    statusTitle += ' (Safari 브라우저)';
+                } else if (isKakaoTalk) {
+                    statusTitle += ' (카카오톡 브라우저 - 정상 작동)';
+                }
+                
+                apiStatus.innerHTML = statusText;
+                apiStatus.className = 'ai-on';
+                apiStatus.title = statusTitle;
+                
+                console.log('🌐 API 상태 업데이트:', {
+                    browser: {
+                        isChrome,
+                        isEdge,
+                        isFirefox,
+                        isSafari,
+                        isKakaoTalk
+                    },
+                    activeApis,
+                    userAgent: userAgent.substring(0, 100)
+                });
+            }
+            
+            // 지식베이스 검색 (간소화된 버전)
+            searchInKnowledgeBase(message) {
+                if (!this.knowledgeBase.enabled || this.knowledgeBase.parsedData.length === 0) {
+                    return null;
+                }
+                
+                const query = message.toLowerCase().trim();
+                let bestMatch = null;
+                let bestScore = 0;
+                
+                for (const qa of this.knowledgeBase.parsedData) {
+                    const question = qa.question.toLowerCase();
+                    const answer = qa.answer.toLowerCase();
+                    
+                    let score = 0;
+                    
+                    // 완전 일치
+                    if (question === query) score += 1000;
+                    
+                    // 부분 포함
+                    if (question.includes(query) || query.includes(question)) score += 500;
+                    
+                    // 단어 매칭
+                    const queryWords = query.split(/\s+/).filter(w => w.length > 1);
+                    for (const word of queryWords) {
+                        if (question.includes(word)) score += 100;
+                        if (answer.includes(word)) score += 50;
+                    }
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = qa;
+                    }
+                }
+                
+                if (bestScore >= 50) {
+                    const reservationText = this.getReservationText();
+                    
+                    const knowledgeResponse = {
+                        ko: {
+                            title: '📚 <strong>피닉스 치과 전문 지식 답변</strong>',
+                            note: '💡 전문 지식 데이터베이스에서 제공된 답변입니다.'
+                        },
+                        en: {
+                            title: '📚 <strong>Phoenix Dental Professional Knowledge Answer</strong>',
+                            note: '💡 Answer provided from professional knowledge database.'
+                        },
+                        ru: {
+                            title: '📚 <strong>Профессиональный ответ Phoenix Dental</strong>',
+                            note: '💡 Ответ предоставлен из профессиональной базы знаний.'
+                        },
+                        ja: {
+                            title: '📚 <strong>フェニックス歯科専門知識回答</strong>',
+                            note: '💡 専門知識データベースから提供された回答です。'
+                        }
+                    };
+                    
+                    const currentKnowledge = knowledgeResponse[this.currentLanguage] || knowledgeResponse['ko'];
+                    
+                    return `${currentKnowledge.title}<br><br>
+                            <strong>Q:</strong> ${bestMatch.question}<br><br>
+                            <strong>A:</strong> ${bestMatch.answer}<br><br>
+                            <small>${currentKnowledge.note}</small>
+                            
+                            <div class="reservation-message">
+                                <div class="reservation-message-text">${reservationText.message}</div>
+                                <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+                            </div>`;
+                }
+                
+                return null;
+            }
+            
+            // 콘텐츠 생성 메서드들
+            createClinicHoursContent(lang) {
+                const content = {
+                    ko: '🕘 <strong>피닉스 치과 진료시간 안내</strong><br><br>📅 <strong>평일:</strong> 09:00 ~ 18:00<br>📅 <strong>토요일:</strong> 09:00 ~ 15:00<br>🍽️ <strong>점심시간:</strong> 12:30 ~ 13:30<br>🚫 <strong>휴진:</strong> 일요일, 공휴일<br><br>📞 <strong>예약 문의:</strong> 070-1234-1234',
+                    en: '🕘 <strong>Phoenix Dental Clinic Hours</strong><br><br>📅 <strong>Weekdays:</strong> 09:00 ~ 18:00<br>📅 <strong>Saturday:</strong> 09:00 ~ 15:00<br>🍽️ <strong>Lunch Break:</strong> 12:30 ~ 13:30<br>🚫 <strong>Closed:</strong> Sunday, Holidays<br><br>📞 <strong>Reservation:</strong> 070-1234-1234',
+                    ru: '🕘 <strong>Часы работы стоматологии Phoenix</strong><br><br>📅 <strong>Будни:</strong> 09:00 ~ 18:00<br>📅 <strong>Суббота:</strong> 09:00 ~ 15:00<br>🍽️ <strong>Обед:</strong> 12:30 ~ 13:30<br>🚫 <strong>Выходные:</strong> Воскресенье, праздники<br><br>📞 <strong>Запись:</strong> 070-1234-1234',
+                    ja: '🕘 <strong>フェニックス歯科診療時間案内</strong><br><br>📅 <strong>平日:</strong> 09:00 ~ 18:00<br>📅 <strong>土曜日:</strong> 09:00 ~ 15:00<br>🍽️ <strong>昼休み:</strong> 12:30 ~ 13:30<br>🚫 <strong>休診:</strong> 日曜日、祝日<br><br>📞 <strong>予約問い合わせ:</strong> 070-1234-1234'
+                };
+                
+                // 현재 언어를 사용하여 예약 텍스트 가져오기
+                const currentLang = lang || this.currentLanguage;
+                const reservationText = this.getReservationText();
+                
+                return content[currentLang] + `<br><br><div class="reservation-message">
+                    <div class="reservation-message-text">${reservationText.message}</div>
+                    <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+                </div>`;
+            }
+            
+            createTreatmentCostContent(lang) {
+                const content = {
+                    ko: '💰 <strong>피닉스 치과 치료비용 안내</strong><br><br>🦷 <strong>일반 진료:</strong> 상담 후 안내<br>🦷 <strong>스케일링:</strong> 30,000원 ~ 50,000원<br>🦷 <strong>임플란트:</strong> 상담 후 개별 견적<br>🦷 <strong>교정:</strong> 상담 후 개별 견적<br><br>💡 <strong>정확한 비용은 진료 후 안내드립니다!</strong>',
+                    en: '💰 <strong>Phoenix Dental Treatment Costs</strong><br><br>🦷 <strong>General Treatment:</strong> Consultation required<br>🦷 <strong>Scaling:</strong> 30,000 ~ 50,000 KRW<br>🦷 <strong>Implant:</strong> Individual estimate<br>🦷 <strong>Orthodontics:</strong> Individual estimate<br><br>💡 <strong>Exact costs provided after examination!</strong>',
+                    ru: '💰 <strong>Стоимость лечения Phoenix</strong><br><br>🦷 <strong>Общее лечение:</strong> Требуется консультация<br>🦷 <strong>Чистка:</strong> 30,000 ~ 50,000 вон<br>🦷 <strong>Имплант:</strong> Индивидуальная оценка<br>🦷 <strong>Ортодонтия:</strong> Индивидуальная оценка<br><br>💡 <strong>Точная стоимость после обследования!</strong>',
+                    ja: '💰 <strong>フェニックス歯科治療費案内</strong><br><br>🦷 <strong>一般診療:</strong> 相談後ご案内<br>🦷 <strong>スケーリング:</strong> 30,000円 ~ 50,000円<br>🦷 <strong>インプラント:</strong> 相談後個別見積もり<br>🦷 <strong>矯正:</strong> 相談後個別見積もり<br><br>💡 <strong>正確な費用は診療後にご案内！</strong>'
+                };
+                
+                // 현재 언어를 사용하여 예약 텍스트 가져오기
+                const currentLang = lang || this.currentLanguage;
+                const reservationText = this.getReservationText();
+                
+                return content[currentLang] + `<br><br><div class="reservation-message">
+                    <div class="reservation-message-text">${reservationText.message}</div>
+                    <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+                </div>`;
+            }
+            
+            createReservationContent(lang) {
+                const content = {
+                    ko: '📞 <strong>피닉스 치과 예약 문의</strong><br><br>🏥 <strong>병원명:</strong> 피닉스 치과<br>📞 <strong>전화번호:</strong> 031-676-2879<br>💬 <strong>카카오톡:</strong> 피닉스치과<br>🌐 <strong>온라인 예약:</strong> 홈페이지 예약 시스템<br><br>💡 <strong>온라인 예약이 가장 편리합니다!</strong>',
+                    en: '📞 <strong>Phoenix Dental Reservation</strong><br><br>🏥 <strong>Clinic:</strong> Phoenix Dental<br>📞 <strong>Phone:</strong> 070-1234-1234<br>💬 <strong>KakaoTalk:</strong> Phoenix Dental<br>🌐 <strong>Online:</strong> Website reservation system<br><br>💡 <strong>Online booking is most convenient!</strong>',
+                    ru: '📞 <strong>Запись Phoenix Dental</strong><br><br>🏥 <strong>Клиника:</strong> Phoenix Dental<br>📞 <strong>Телефон:</strong> 070-1234-1234<br>💬 <strong>KakaoTalk:</strong> Phoenix Dental<br>🌐 <strong>Онлайн:</strong> Система записи на сайте<br><br>💡 <strong>Онлайн запись наиболее удобна!</strong>',
+                    ja: '📞 <strong>フェニックス歯科予約</strong><br><br>🏥 <strong>病院名:</strong> フェニックス歯科<br>📞 <strong>電話番号:</strong> 070-1234-1234<br>💬 <strong>カカオトーク:</strong> フェニックス歯科<br>🌐 <strong>オンライン:</strong> ホーム페이지予約システム<br><br>💡 <strong>オンライン予約が最も便利です!</strong>'
+                };
+                
+                // 현재 언어를 사용하여 예약 텍스트 가져오기
+                const currentLang = lang || this.currentLanguage;
+                const reservationText = this.getReservationText();
+                
+                return content[currentLang] + `<br><br><div class="reservation-message">
+                    <div class="reservation-message-text">${reservationText.message}</div>
+                    <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+                </div>`;
+            }
+            
+            createDirectionsContent(lang) {
+                const content = {
+                    ko: '🗺️ <strong>피닉스 치과 오시는길</strong><br><br>📍 <strong>주소:</strong> 서울특별시 강남구 테헤란로 123<br>🚇 <strong>지하철:</strong> 2호선 강남역 3번 출구 도보 5분<br>🚌 <strong>버스:</strong> 강남역 정류장 하차<br>🚗 <strong>주차:</strong> 건물 지하 1층 (2시간 무료)',
+                    en: '🗺️ <strong>Directions to Phoenix Dental</strong><br><br>📍 <strong>Address:</strong> 123 Teheran-ro, Gangnam-gu, Seoul<br>🚇 <strong>Subway:</strong> Line 2 Gangnam Station Exit 3, 5 min walk<br>🚌 <strong>Bus:</strong> Gangnam Station<br>🚗 <strong>Parking:</strong> Building B1 (2 hours free)',
+                    ru: '🗺️ <strong>Как добраться до Phoenix Dental</strong><br><br>📍 <strong>Адрес:</strong> Сеул, Каннам-гу, Техеран-ро 123<br>🚇 <strong>Метро:</strong> Линия 2, станция Каннам, выход 3, 5 мин пешком<br>🚌 <strong>Автобус:</strong> Остановка Каннам<br>🚗 <strong>Парковка:</strong> Подземный этаж (2 часа бесплатно)',
+                    ja: '🗺️ <strong>フェニックス歯科へのアクセス</strong><br><br>📍 <strong>住所:</strong> ソウル特別市江南区テヘラン路123<br>🚇 <strong>地下鉄:</strong> 2号線江南駅3番出口徒歩5分<br>🚌 <strong>バス:</strong> 江南駅停留所下車<br>🚗 <strong>駐車場:</strong> 建物地下1階（2時間無料）'
+                };
+                
+                // 현재 언어를 사용하여 예약 텍스트 가져오기
+                const currentLang = lang || this.currentLanguage;
+                const reservationText = this.getReservationText();
+                
+                return content[currentLang] + `<br><br><div class="reservation-message">
+                    <div class="reservation-message-text">${reservationText.message}</div>
+                    <button class="reservation-button" onclick="window.open('reservation.html', '_blank')">${reservationText.button}</button>
+                </div>`;
+            }
+            
+
+        }
+
+        // 🎯 전역 챗봇 인스턴스 생성
+        let chatbot;
+        
+        // 브라우저별 디버깅 도구 (전역 함수)
+        window.debugBrowserApi = function() {
+            if (window.chatbot) {
+                console.log('🔧 브라우저별 디버깅 도구 실행');
+                
+                const userAgent = navigator.userAgent;
+                const browserInfo = {
+                    userAgent: userAgent,
+                    isChrome: /Chrome/.test(userAgent) && !/Edge/.test(userAgent),
+                    isEdge: /Edge/.test(userAgent),
+                    isFirefox: /Firefox/.test(userAgent),
+                    isSafari: /Safari/.test(userAgent) && !/Chrome/.test(userAgent),
+                    isKakaoTalk: /KAKAO/.test(userAgent),
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    cookieEnabled: navigator.cookieEnabled,
+                    onLine: navigator.onLine
+                };
+                
+                console.log('🌐 브라우저 정보:', browserInfo);
+                console.log('🔧 챗봇 설정:', window.chatbot.apiSettings);
+                console.log('📊 API 상태:', window.chatbot.hasActiveAPI());
+                
+                // 로컬 스토리지 테스트
+                try {
+                    const testKey = 'browser_debug_test';
+                    localStorage.setItem(testKey, 'test_value');
+                    const testValue = localStorage.getItem(testKey);
+                    localStorage.removeItem(testKey);
+                    console.log('💾 로컬 스토리지 테스트:', testValue === 'test_value' ? '성공' : '실패');
+                } catch (error) {
+                    console.error('❌ 로컬 스토리지 테스트 실패:', error);
+                }
+                
+                // API 연결 테스트 실행
+                window.chatbot.testBrowserApiConnection().then(result => {
+                    console.log('🧪 API 연결 테스트 결과:', result);
+                }).catch(error => {
+                    console.error('❌ API 연결 테스트 실패:', error);
+                });
+                
+                return browserInfo;
+            } else {
+                console.error('❌ 챗봇 인스턴스를 찾을 수 없습니다.');
+                return null;
+            }
+        };
+        
+        // 브라우저별 테스트 히스토리 확인
+        window.showBrowserTestHistory = function() {
+            try {
+                const history = JSON.parse(localStorage.getItem('browserApiTestHistory') || '[]');
+                console.log('📊 브라우저별 테스트 히스토리:', history);
+                return history;
+            } catch (error) {
+                console.error('❌ 테스트 히스토리 로드 실패:', error);
+                return [];
+            }
+        };
+        
+        // 브라우저별 캐시 클리어
+        window.clearBrowserCache = function() {
+            try {
+                // 로컬 스토리지 클리어
+                localStorage.clear();
+                console.log('🗑️ 로컬 스토리지 클리어 완료');
+                
+                // 세션 스토리지 클리어
+                sessionStorage.clear();
+                console.log('🗑️ 세션 스토리지 클리어 완료');
+                
+                alert('브라우저 캐시가 클리어되었습니다. 페이지를 새로고침해주세요.');
+                return true;
+            } catch (error) {
+                console.error('❌ 캐시 클리어 실패:', error);
+                alert('캐시 클리어 중 오류가 발생했습니다.');
+                return false;
+            }
+        };
+
+        // 🎯 페이지 로드 시 초기화 (브라우저별 호환성 개선)
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 피닉스 치과 AI 챗봇 페이지 로드');
+            
+            // 브라우저 정보 로깅
+            const userAgent = navigator.userAgent;
+            console.log('🌐 브라우저 정보:', {
+                userAgent: userAgent.substring(0, 100),
+                platform: navigator.platform,
+                language: navigator.language,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine
+            });
+            
+            // 챗봇 인스턴스 생성 및 초기화
+            chatbot = new PhoenixChatbot();
+            window.chatbot = chatbot; // 전역으로 설정
+
+            // 전송 버튼 클릭: 관리자모드 체크 포함
+            var sendBtn = document.getElementById('chatbotSendBtn');
+            var chatInput = document.getElementById('chatbotInput');
+            if (sendBtn && chatInput) {
+                sendBtn.addEventListener('click', function() {
+                    var msg = (chatInput.value || '').trim();
+                    if (!msg) return;
+                    if (msg.replace(/\s+/g, '') === '관리자모드') {
+                        chatInput.value = '';
+                        if (chatInput.style) chatInput.style.height = 'auto';
+                        (window.openAdminApiModal || openAdminApiModal)();
+                        return;
+                    }
+                    (window.sendMessage || sendMessage)();
+                });
+            }
+        });
+
+        // 🎯 전역 함수들 (기존 코드와의 호환성)
+        function sendMessage() {
+            const input = document.getElementById('chatbotInput');
+            if (!input) return;
+            const message = (input.value || '').trim();
+            
+            if (!message) return;
+            
+            // '관리자모드' 입력 시 OpenAI API 설정 모달 표시 (공백 포함·채팅에 추가하지 않음)
+            var normalized = message.replace(/\s+/g, '');
+            if (normalized === '관리자모드') {
+                input.value = '';
+                if (input.style) input.style.height = 'auto';
+                if (typeof openAdminApiModal === 'function') {
+                    openAdminApiModal();
+                } else {
+                    var modal = document.getElementById('adminApiModal');
+                    if (modal) modal.style.display = 'flex';
+                }
+                return;
+            }
+            
+            if (chatbot) {
+                chatbot.addUserMessage(message);
+            }
+            input.value = '';
+            if (input.style) input.style.height = 'auto';
+            
+            if (chatbot) chatbot.processMessage(message);
+        }
+        window.sendMessage = sendMessage;
+
+        function toggleLanguageMenu() {
+            if (chatbot) {
+                chatbot.toggleLanguageMenu();
+            } else {
+                const menu = document.getElementById('languageMenu');
+                if (menu) {
+                    menu.classList.toggle('show');
+                    console.log('전역 함수: 언어 메뉴 토글');
+                }
+            }
+        }
+
+        function selectLanguage(language) {
+            if (chatbot) {
+                chatbot.currentLanguage = language;
+                chatbot.updateLanguageUI();
+                
+                const changeMessages = {
+                    ko: '🇰🇷 한국어로 언어가 변경되었습니다!',
+                    en: '🇺🇸 Language changed to English!',
+                    ru: '🇷🇺 Язык изменен на русский!',
+                    ja: '🇯🇵 言語が日本語に変更されました！'
+                };
+                
+                chatbot.addBotMessage(changeMessages[language] || changeMessages['ko']);
+                
+                // 언어 변경 후 환영 메시지 다시 표시
+                setTimeout(() => {
+                    chatbot.addWelcomeMessage();
+                }, 1000);
+                
+                chatbot.closeLanguageMenu();
+            }
+        }
+
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        function handleInputKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                (window.sendMessage || sendMessage)();
+            }
+        }
+
+        function handleBackNavigation(event) {
+            // 뒤로가기 로직
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+
+
+        // 관리자 페이지 닫기
+        function closeChatbotAdmin() {
+            console.log('AI 챗봇 관리 페이지 닫기');
+            document.getElementById('chatbotAdminPage').style.display = 'none';
+        }
+
+        // 관리자모드: OpenAI API 설정 모달 열기 (채팅창에서 '관리자모드' 입력 시)
+        function openAdminApiModal() {
+            const modal = document.getElementById('adminApiModal');
+            if (!modal) return;
+            const apiKeyInput = document.getElementById('adminApiKey');
+            const modelSelect = document.getElementById('adminModel');
+            if (apiKeyInput) {
+                try {
+                    const saved = JSON.parse(localStorage.getItem('chatbotApiSettings') || '{}');
+                    apiKeyInput.value = saved.chatgpt && saved.chatgpt.apiKey ? saved.chatgpt.apiKey : '';
+                } catch (e) {}
+            }
+            if (modelSelect) {
+                try {
+                    const saved = JSON.parse(localStorage.getItem('chatbotApiSettings') || '{}');
+                    const model = (saved.chatgpt && saved.chatgpt.model) ? saved.chatgpt.model : 'gpt-5.2';
+                    modelSelect.value = (model === 'gpt-5.2' || model === 'gpt-5-mini') ? model : 'gpt-5.2';
+                } catch (e) {
+                    modelSelect.value = 'gpt-5.2';
+                }
+            }
+            modal.style.display = 'flex';
+        }
+        window.openAdminApiModal = openAdminApiModal;
+
+        function closeAdminApiModal() {
+            const modal = document.getElementById('adminApiModal');
+            if (modal) modal.style.display = 'none';
+        }
+        window.closeAdminApiModal = closeAdminApiModal;
+
+        // 관리자모드 모달 저장 버튼
+        document.addEventListener('DOMContentLoaded', function() {
+            const saveBtn = document.getElementById('adminApiModalSave');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function() {
+                    const apiKey = (document.getElementById('adminApiKey') || {}).value.trim();
+                    const model = (document.getElementById('adminModel') || {}).value;
+                    if (!model) return;
+                    try {
+                        const existing = JSON.parse(localStorage.getItem('chatbotApiSettings') || '{}');
+                        const settings = {
+                            chatgpt: {
+                                enabled: true,
+                                apiKey: apiKey,
+                                model: model,
+                                finetuningModel: existing.chatgpt?.finetuningModel || ''
+                            },
+                            gemini: existing.gemini || { enabled: false, apiKey: '', model: '' },
+                            claude: existing.claude || { enabled: false, apiKey: '', model: '' }
+                        };
+                        localStorage.setItem('chatbotApiSettings', JSON.stringify(settings));
+                        if (window.chatbot) {
+                            window.chatbot.loadApiSettings();
+                            window.chatbot.updateApiStatusDisplay();
+                        }
+                        closeAdminApiModal();
+                    } catch (e) { console.error(e); }
+                });
+            }
+        });
+
+        // 관리자 페이지 API 상태 업데이트
+        function updateAdminApiStatus() {
+            const adminApiStatus = document.getElementById('adminApiStatus');
+            if (adminApiStatus && window.chatbot) {
+                adminApiStatus.innerHTML = window.chatbot.hasActiveAPI() ? '🟢 AI API 연결됨' : '🔴 AI API 설정 필요';
+            }
+        }
+
+        // 관리자 페이지 이벤트 리스너 설정
+        function setupAdminEventListeners() {
+            console.log('🔧 관리자 페이지 이벤트 리스너 설정 시작');
+            
+            // API 설정 저장 버튼
+            const saveApiBtn = document.getElementById('saveApiBtn');
+            if (saveApiBtn) {
+                saveApiBtn.addEventListener('click', function() {
+                    try {
+                        console.log('💾 API 설정 저장 시작');
+                        
+                        // 입력 필드에서 값 가져오기
+                        const chatgptApiKey = document.getElementById('chatgptApiKey');
+                        const chatgptModel = document.getElementById('chatgptModel');
+                        const chatgptFinetuningModel = document.getElementById('chatgptFinetuningModel');
+                        const geminiApiKey = document.getElementById('geminiApiKey');
+                        const geminiModel = document.getElementById('geminiModel');
+                        const claudeApiKey = document.getElementById('claudeApiKey');
+                        const claudeModel = document.getElementById('claudeModel');
+                        
+                        if (!chatgptApiKey || !chatgptModel || !geminiApiKey || !geminiModel || !claudeApiKey || !claudeModel) {
+                            throw new Error('필수 입력 필드를 찾을 수 없습니다.');
+                        }
+                        
+                        const settings = {
+                            chatgpt: {
+                                enabled: chatgptModel.value !== '',  // 모델이 선택되면 활성화
+                                apiKey: chatgptApiKey.value.trim(),
+                                model: chatgptModel.value,
+                                finetuningModel: chatgptFinetuningModel ? chatgptFinetuningModel.value : ''
+                            },
+                            gemini: {
+                                enabled: geminiModel.value !== '',  // 모델이 선택되면 활성화
+                                apiKey: geminiApiKey.value.trim(),
+                                model: geminiModel.value
+                            },
+                            claude: {
+                                enabled: claudeModel.value !== '',  // 모델이 선택되면 활성화
+                                apiKey: claudeApiKey.value.trim(),
+                                model: claudeModel.value
+                            }
+                        };
+                        
+                        localStorage.setItem('chatbotApiSettings', JSON.stringify(settings));
+                        console.log('✅ API 설정 저장 완료:', settings);
+                        
+                        // 상태 메시지 업데이트
+                        const statusDiv = document.getElementById('apiStatus');
+                        if (statusDiv) {
+                            statusDiv.innerHTML = '<div style="color: green; padding: 10px; background: #d4edda; border-radius: 5px; margin-top: 10px;">✅ API 설정이 저장되었습니다!</div>';
+                        }
+                        
+                        // 챗봇 인스턴스 업데이트
+                        if (window.chatbot) {
+                            window.chatbot.loadApiSettings();
+                            window.chatbot.updateApiStatusDisplay();
+                            console.log('✅ 챗봇 API 설정 업데이트 완료');
+                        }
+                        
+                        // 관리자 페이지 상태 업데이트
+                        updateAdminApiStatus();
+                        
+                        // 성공 알림
+                        alert('✅ API 설정이 성공적으로 저장되었습니다!');
+                        
+                    } catch (error) {
+                        console.error('❌ API 설정 저장 실패:', error);
+                        alert('❌ API 설정 저장에 실패했습니다: ' + error.message);
+                    }
+                });
+                console.log('✅ API 설정 저장 버튼 이벤트 리스너 추가 완료');
+            }
+
+                    // API 연결 테스트 버튼
+            const testApiBtn = document.getElementById('testApiBtn');
+            if (testApiBtn) {
+                testApiBtn.addEventListener('click', function() {
+                    try {
+                        console.log('🔗 API 연결 테스트 시작');
+                        
+                        const statusDiv = document.getElementById('apiStatus');
+                        if (statusDiv) {
+                            statusDiv.innerHTML = '<div style="color: #856404; padding: 10px; background: #fff3cd; border-radius: 5px; margin-top: 10px;">🔄 API 연결을 테스트하고 있습니다...</div>';
+                        }
+                        
+                        setTimeout(() => {
+                            try {
+                                const settings = JSON.parse(localStorage.getItem('chatbotApiSettings') || '{}');
+                                let activeApis = [];
+                                
+                                                if (settings.chatgpt?.enabled) activeApis.push('ChatGPT');
+                if (settings.gemini?.enabled) activeApis.push('Gemini');
+                if (settings.claude?.enabled) activeApis.push('Claude');
+                                
+                                console.log('🔍 활성화된 API:', activeApis);
+                                
+                                if (activeApis.length > 0) {
+                                    const successMessage = `✅ 연결 성공! 활성화된 API: ${activeApis.join(', ')}`;
+                                    if (statusDiv) {
+                                        statusDiv.innerHTML = `<div style="color: green; padding: 10px; background: #d4edda; border-radius: 5px; margin-top: 10px;">${successMessage}</div>`;
+                                    }
+                                    alert(successMessage);
+                                    
+                                    // 챗봇 인스턴스 업데이트
+                                    if (window.chatbot) {
+                                        window.chatbot.loadApiSettings();
+                                        window.chatbot.updateApiStatusDisplay();
+                                    }
+                                    
+                                    // 관리자 페이지 상태 업데이트
+                                    updateAdminApiStatus();
+                                } else {
+                                    const errorMessage = '❌ 활성화된 API가 없습니다. API 키를 입력해주세요.';
+                                    if (statusDiv) {
+                                        statusDiv.innerHTML = `<div style="color: #721c24; padding: 10px; background: #f8d7da; border-radius: 5px; margin-top: 10px;">${errorMessage}</div>`;
+                                    }
+                                    alert(errorMessage);
+                                }
+                            } catch (error) {
+                                console.error('❌ API 연결 테스트 중 오류:', error);
+                                const errorMessage = '❌ API 연결 테스트 중 오류가 발생했습니다.';
+                                if (statusDiv) {
+                                    statusDiv.innerHTML = `<div style="color: #721c24; padding: 10px; background: #f8d7da; border-radius: 5px; margin-top: 10px;">${errorMessage}</div>`;
+                                }
+                                alert(errorMessage);
+                            }
+                        }, 1000);
+                        
+                    } catch (error) {
+                        console.error('❌ API 연결 테스트 실패:', error);
+                        alert('❌ API 연결 테스트에 실패했습니다. 다시 시도해주세요.');
+                    }
+                });
+                console.log('✅ API 연결 테스트 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // API 설정 초기화 버튼
+            const resetApiBtn = document.getElementById('resetApiBtn');
+            if (resetApiBtn) {
+                resetApiBtn.addEventListener('click', function() {
+                    try {
+                        if (confirm('정말로 모든 API 설정을 초기화하시겠습니까?')) {
+                            console.log('🔄 API 설정 초기화 시작');
+                            
+                            // 입력 필드 초기화
+                            const fields = [
+                                'chatgptApiKey', 'chatgptModel', 'chatgptFinetuningModel',
+                                'geminiApiKey', 'geminiModel',
+                                'claudeApiKey', 'claudeModel'
+                            ];
+                            
+                            fields.forEach(fieldId => {
+                                const element = document.getElementById(fieldId);
+                                if (element) {
+                                    element.value = '';
+                                }
+                            });
+                            
+                            // Finetuning 그룹 숨기기
+                            const finetuningGroup = document.getElementById('chatgptFinetuningGroup');
+                            if (finetuningGroup) {
+                                finetuningGroup.style.display = 'none';
+                            }
+                            
+                            // 로컬 스토리지에서 설정 제거
+                            localStorage.removeItem('chatbotApiSettings');
+                            console.log('✅ API 설정 초기화 완료');
+                            
+                            // 상태 메시지 업데이트
+                            const statusDiv = document.getElementById('apiStatus');
+                            if (statusDiv) {
+                                statusDiv.innerHTML = '<div style="color: #856404; padding: 10px; background: #fff3cd; border-radius: 5px; margin-top: 10px;">🔄 API 설정이 초기화되었습니다.</div>';
+                            }
+                            
+                            // 챗봇 인스턴스 업데이트
+                            if (window.chatbot) {
+                                window.chatbot.loadApiSettings();
+                                window.chatbot.updateApiStatusDisplay();
+                                console.log('✅ 챗봇 API 설정 초기화 완료');
+                            }
+                            
+                            // 관리자 페이지 상태 업데이트
+                            updateAdminApiStatus();
+                            
+                            alert('✅ API 설정이 성공적으로 초기화되었습니다!');
+                        }
+                    } catch (error) {
+                        console.error('❌ API 설정 초기화 실패:', error);
+                        alert('❌ API 설정 초기화에 실패했습니다. 다시 시도해주세요.');
+                    }
+                });
+                console.log('✅ API 설정 초기화 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // ChatGPT 모델 선택 이벤트
+            const chatgptModel = document.getElementById('chatgptModel');
+            if (chatgptModel) {
+                chatgptModel.addEventListener('change', function() {
+                    const finetuningGroup = document.getElementById('chatgptFinetuningGroup');
+                    if (finetuningGroup) {
+                        if (this.value === 'finetuning') {
+                            finetuningGroup.style.display = 'block';
+                        } else {
+                            finetuningGroup.style.display = 'none';
+                        }
+                    }
+                });
+                console.log('✅ ChatGPT 모델 선택 이벤트 리스너 추가 완료');
+            }
+
+            // 파일 업로드 이벤트
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(event) {
+                    const files = event.target.files;
+                    processUploadedFiles(files);
+                });
+                console.log('✅ 파일 업로드 이벤트 리스너 추가 완료');
+            }
+
+            // 파일 드래그 앤 드롭 이벤트
+            const uploadArea = document.getElementById('uploadArea');
+            if (uploadArea) {
+                // 클릭 이벤트
+                uploadArea.addEventListener('click', function() {
+                    document.getElementById('fileInput').click();
+                });
+                
+                // 드래그 오버 이벤트
+                uploadArea.addEventListener('dragover', function(event) {
+                    event.preventDefault();
+                    this.style.borderColor = '#4facfe';
+                });
+                
+                // 드래그 리브 이벤트
+                uploadArea.addEventListener('dragleave', function(event) {
+                    event.preventDefault();
+                    this.style.borderColor = '#ddd';
+                });
+                
+                // 드롭 이벤트
+                uploadArea.addEventListener('drop', function(event) {
+                    event.preventDefault();
+                    this.style.borderColor = '#ddd';
+                    
+                    const files = event.dataTransfer.files;
+                    processUploadedFiles(files);
+                });
+                console.log('✅ 파일 드래그 앤 드롭 이벤트 리스너 추가 완료');
+            }
+
+            // 파일 업로드 처리 함수들
+            function processUploadedFiles(files) {
+                console.log('파일 업로드 처리 시작:', files.length, '개');
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    console.log('파일 처리 중:', file.name, file.type, file.size);
+                    
+                    const fileData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        uploadTime: new Date(),
+                        content: ''
+                    };
+                    
+                    // 파일 확장자 확인
+                    const fileExtension = file.name.toLowerCase().split('.').pop();
+                    
+                    // PDF 파일 경고
+                    if (fileExtension === 'pdf' || file.type === 'application/pdf') {
+                        console.warn('PDF 파일 감지:', file.name);
+                        alert('❌ PDF 파일은 현재 지원되지 않습니다.\nPDF 내용을 텍스트 파일(.txt)로 복사해서 업로드해주세요.');
+                        continue;
+                    }
+                    
+                    // 지원되는 파일 형식 처리
+                    if (fileExtension === 'txt' || file.type === 'text/plain' || file.type === '') {
+                        // 텍스트 파일 처리
+                        processTextFile(file, fileData);
+
+                    } else if (fileExtension === 'jsonl' || file.type === 'application/jsonl' || file.type === 'text/plain') {
+                        // JSONL 파일 처리
+                        processJsonlFile(file, fileData);
+                    } else {
+                        // 지원되지 않는 파일 형식
+                        console.warn('지원되지 않는 파일 형식:', file.name, file.type);
+                        alert(`❌ 지원되지 않는 파일 형식입니다: ${file.name}\n\n📁 현재 지원되는 파일 형식:\n• 텍스트 파일 (.txt)\n• JSONL 파일 (.jsonl)`);
+                    }
+                }
+            }
+
+            // 텍스트 파일 처리
+            function processTextFile(file, fileData) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        fileData.content = content;
+                        processKnowledgeFile(fileData.name, content);
+                    } catch (error) {
+                        console.error('텍스트 파일 처리 오류:', error);
+                        alert(`❌ 텍스트 파일 처리 실패: ${file.name}`);
+                    }
+                };
+                reader.onerror = function() {
+                    console.error('텍스트 파일 읽기 오류');
+                    alert(`❌ 텍스트 파일 읽기 실패: ${file.name}`);
+                };
+                reader.readAsText(file, 'UTF-8');
+            }
+
+
+
+            // JSONL 파일 처리
+            function processJsonlFile(file, fileData) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        fileData.content = content;
+                        processJsonlContent(fileData.name, content);
+                    } catch (error) {
+                        console.error('JSONL 파일 처리 오류:', error);
+                        alert(`❌ JSONL 파일 처리 실패: ${file.name}`);
+                    }
+                };
+                reader.onerror = function() {
+                    console.error('JSONL 파일 읽기 오류');
+                    alert(`❌ JSONL 파일 읽기 실패: ${file.name}`);
+                };
+                reader.readAsText(file, 'UTF-8');
+            }
+
+            // JSONL 내용 처리
+            function processJsonlContent(filename, content) {
+                const lines = content.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+                const qaList = [];
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    
+                    try {
+                        const jsonData = JSON.parse(line);
+                        
+                        let question = '';
+                        let answer = '';
+                        
+                        if (jsonData.question && jsonData.answer) {
+                            question = jsonData.question;
+                            answer = jsonData.answer;
+                        } else if (jsonData.q && jsonData.a) {
+                            question = jsonData.q;
+                            answer = jsonData.a;
+                        } else if (jsonData.질문 && jsonData.답변) {
+                            question = jsonData.질문;
+                            answer = jsonData.답변;
+                        } else if (jsonData.text && jsonData.response) {
+                            question = jsonData.text;
+                            answer = jsonData.response;
+                        } else if (jsonData.prompt && jsonData.completion) {
+                            question = jsonData.prompt;
+                            answer = jsonData.completion;
+                        } else if (jsonData.input && jsonData.output) {
+                            question = jsonData.input;
+                            answer = jsonData.output;
+                        }
+                        
+                        if (question && answer && question.length > 2 && answer.length > 3) {
+                            qaList.push({ question: question, answer: answer });
+                        }
+                        
+                    } catch (error) {
+                        console.warn(`JSONL 라인 ${i + 1} 파싱 실패:`, error);
+                        continue;
+                    }
+                }
+                
+                if (qaList.length > 0) {
+                    const knowledgeData = JSON.parse(localStorage.getItem('chatbotKnowledgeBase') || '{"enabled": false, "files": [], "parsedData": []}');
+                    knowledgeData.parsedData = knowledgeData.parsedData.concat(qaList);
+                    localStorage.setItem('chatbotKnowledgeBase', JSON.stringify(knowledgeData));
+                    
+                    // 파일 목록에 추가
+                    const fileList = document.getElementById('fileList');
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'file-item';
+                    fileDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">
+                            <div>
+                                <strong>📄 ${filename}</strong>
+                                <div style="font-size: 12px; color: #666;">크기: ${(content.length / 1024).toFixed(2)} KB | Q&A: ${qaList.length}개</div>
+                            </div>
+                            <button onclick="this.parentElement.remove(); updateKnowledgeStatus();" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">삭제</button>
+                        </div>
+                    `;
+                    fileList.appendChild(fileDiv);
+                }
+                
+                updateKnowledgeStatus();
+            }
+
+            // 지식 파일 처리 함수
+            function processKnowledgeFile(filename, content) {
+                const fileList = document.getElementById('fileList');
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'file-item';
+                fileDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px;">
+                        <div>
+                            <strong>📄 ${filename}</strong>
+                            <div style="font-size: 12px; color: #666;">크기: ${(content.length / 1024).toFixed(2)} KB</div>
+                        </div>
+                        <button onclick="this.parentElement.remove(); updateKnowledgeStatus();" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">삭제</button>
+                    </div>
+                `;
+                fileList.appendChild(fileDiv);
+                
+                // Q&A 파싱
+                const qaList = parseQAFromContent(content);
+                if (qaList.length > 0) {
+                    const knowledgeData = JSON.parse(localStorage.getItem('chatbotKnowledgeBase') || '{"enabled": false, "files": [], "parsedData": []}');
+                    knowledgeData.parsedData = knowledgeData.parsedData.concat(qaList);
+                    localStorage.setItem('chatbotKnowledgeBase', JSON.stringify(knowledgeData));
+                }
+                
+                updateKnowledgeStatus();
+            }
+
+            // Q&A 파싱 함수
+            function parseQAFromContent(content) {
+                const lines = content.split('\n');
+                const qaList = [];
+                let currentQ = '';
+                let currentA = '';
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.startsWith('Q:') || line.startsWith('Q.') || line.startsWith('질문:')) {
+                        if (currentQ && currentA) {
+                            qaList.push({ question: currentQ, answer: currentA });
+                        }
+                        currentQ = line.replace(/^Q[:.]\s*|^질문:\s*/, '');
+                        currentA = '';
+                    } else if (line.startsWith('A:') || line.startsWith('A.') || line.startsWith('답변:')) {
+                        currentA = line.replace(/^A[:.]\s*|^답변:\s*/, '');
+                    } else if (currentA) {
+                        currentA += ' ' + line;
+                    } else if (currentQ) {
+                        currentQ += ' ' + line;
+                    }
+                }
+                
+                if (currentQ && currentA) {
+                    qaList.push({ question: currentQ, answer: currentA });
+                }
+                
+                return qaList;
+            }
+
+            // 지식 상태 업데이트 함수
+            function updateKnowledgeStatus() {
+                const fileItems = document.querySelectorAll('.file-item');
+                const knowledgeData = JSON.parse(localStorage.getItem('chatbotKnowledgeBase') || '{"enabled": false, "files": [], "parsedData": []}');
+                
+                const statusDiv = document.getElementById('knowledgeStatus');
+                if (statusDiv) {
+                    statusDiv.innerHTML = `📖 업로드된 지식 파일: ${fileItems.length}개 | 파싱된 Q&A: ${knowledgeData.parsedData.length}개 | 상태: ${knowledgeData.enabled ? '활성' : '비활성'}`;
+                }
+            }
+
+            // 지식 설정 저장 버튼
+            const saveKnowledgeBtn = document.getElementById('saveKnowledgeBtn');
+            if (saveKnowledgeBtn) {
+                saveKnowledgeBtn.addEventListener('click', function() {
+                    const fileItems = document.querySelectorAll('.file-item');
+                    const knowledgeData = JSON.parse(localStorage.getItem('chatbotKnowledgeBase') || '{"enabled": false, "files": [], "parsedData": []}');
+                    
+                    knowledgeData.enabled = fileItems.length > 0;
+                    knowledgeData.files = Array.from(fileItems).map(item => item.querySelector('strong').textContent.replace('📄 ', ''));
+                    
+                    localStorage.setItem('chatbotKnowledgeBase', JSON.stringify(knowledgeData));
+                    
+                    const statusDiv = document.getElementById('knowledgeSettingsStatus');
+                    if (statusDiv) {
+                        statusDiv.innerHTML = '<div style="color: green; padding: 10px; background: #d4edda; border-radius: 5px; margin-top: 10px;">✅ 지식 설정이 저장되었습니다!</div>';
+                    }
+                    
+                    if (window.chatbot) {
+                        window.chatbot.loadKnowledgeBaseSettings();
+                    }
+                    
+                    alert('✅ 지식 설정이 성공적으로 저장되었습니다!');
+                });
+                console.log('✅ 지식 설정 저장 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // 지식 검색 테스트 버튼
+            const testKnowledgeBtn = document.getElementById('testKnowledgeBtn');
+            if (testKnowledgeBtn) {
+                testKnowledgeBtn.addEventListener('click', function() {
+                    const testQuery = prompt('검색할 질문을 입력하세요:');
+                    if (!testQuery) return;
+                    
+                    const knowledgeData = JSON.parse(localStorage.getItem('chatbotKnowledgeBase') || '{"enabled": false, "files": [], "parsedData": []}');
+                    
+                    if (!knowledgeData.enabled || knowledgeData.parsedData.length === 0) {
+                        alert('활성화된 지식베이스가 없습니다.');
+                        return;
+                    }
+                    
+                    const result = searchInKnowledgeBase(testQuery, knowledgeData.parsedData);
+                    if (result) {
+                        alert(`검색 결과:\n\nQ: ${result.question}\n\nA: ${result.answer}`);
+                    } else {
+                        alert('관련 답변을 찾을 수 없습니다.');
+                    }
+                });
+                console.log('✅ 지식 검색 테스트 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // 지식베이스 검색 함수
+            function searchInKnowledgeBase(query, parsedData) {
+                const normalizedQuery = query.toLowerCase().trim();
+                let bestMatch = null;
+                let bestScore = 0;
+                
+                for (const qa of parsedData) {
+                    const question = qa.question.toLowerCase();
+                    const answer = qa.answer.toLowerCase();
+                    
+                    let score = 0;
+                    
+                    if (question === normalizedQuery) score += 1000;
+                    if (question.includes(normalizedQuery) || normalizedQuery.includes(question)) score += 500;
+                    
+                    const queryWords = normalizedQuery.split(/\s+/).filter(w => w.length > 1);
+                    for (const word of queryWords) {
+                        if (question.includes(word)) score += 100;
+                        if (answer.includes(word)) score += 50;
+                    }
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMatch = qa;
+                    }
+                }
+                
+                return bestScore >= 50 ? bestMatch : null;
+            }
+
+            // 파싱된 데이터 보기 버튼
+            const showParsedDataBtn = document.getElementById('showParsedDataBtn');
+            if (showParsedDataBtn) {
+                showParsedDataBtn.addEventListener('click', function() {
+                    const knowledgeData = JSON.parse(localStorage.getItem('chatbotKnowledgeBase') || '{"enabled": false, "files": [], "parsedData": []}');
+                    const viewDiv = document.getElementById('parsedDataView');
+                    const contentDiv = document.getElementById('parsedDataContent');
+                    
+                    if (viewDiv && contentDiv) {
+                        if (knowledgeData.parsedData.length === 0) {
+                            contentDiv.innerHTML = '<p style="color: #666;">파싱된 Q&A 데이터가 없습니다.</p>';
+                        } else {
+                            let html = '';
+                            knowledgeData.parsedData.forEach((qa, index) => {
+                                html += `
+                                    <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
+                                        <div style="font-weight: bold; color: #2c3e50; margin-bottom: 8px;">Q${index + 1}: ${qa.question}</div>
+                                        <div style="color: #666;">A: ${qa.answer}</div>
+                                    </div>
+                                `;
+                            });
+                            contentDiv.innerHTML = html;
+                        }
+                        
+                        viewDiv.style.display = viewDiv.style.display === 'none' ? 'block' : 'none';
+                    }
+                });
+                console.log('✅ 파싱된 데이터 보기 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // 모든 지식 삭제 버튼
+            const clearKnowledgeBtn = document.getElementById('clearKnowledgeBtn');
+            if (clearKnowledgeBtn) {
+                clearKnowledgeBtn.addEventListener('click', function() {
+                    if (confirm('정말로 모든 지식 데이터를 삭제하시겠습니까?')) {
+                        const fileList = document.getElementById('fileList');
+                        if (fileList) {
+                            fileList.innerHTML = '';
+                        }
+                        localStorage.removeItem('chatbotKnowledgeBase');
+                        updateKnowledgeStatus();
+                        
+                        const statusDiv = document.getElementById('knowledgeSettingsStatus');
+                        if (statusDiv) {
+                            statusDiv.innerHTML = '<div style="color: #856404; padding: 10px; background: #fff3cd; border-radius: 5px; margin-top: 10px;">🔄 모든 지식 데이터가 삭제되었습니다.</div>';
+                        }
+                        
+                        if (window.chatbot) {
+                            window.chatbot.loadKnowledgeBaseSettings();
+                        }
+                        
+                        alert('✅ 모든 지식 데이터가 성공적으로 삭제되었습니다!');
+                    }
+                });
+                console.log('✅ 모든 지식 삭제 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // 대화 이력 관리 이벤트 리스너들
+            // 대화 이력 보기 버튼
+            const viewChatHistoryBtn = document.getElementById('viewChatHistoryBtn');
+            if (viewChatHistoryBtn) {
+                viewChatHistoryBtn.addEventListener('click', function() {
+                    const viewDiv = document.getElementById('chatHistoryView');
+                    const contentDiv = document.getElementById('chatHistoryContent');
+                    
+                    if (viewDiv && contentDiv && window.chatbot) {
+                        const history = window.chatbot.chatHistory;
+                        
+                        if (history.length === 0) {
+                            contentDiv.innerHTML = '<p style="color: #666;">현재 대화 이력이 없습니다.</p>';
+                        } else {
+                            let html = '';
+                            history.forEach((msg, index) => {
+                                const role = msg.role === 'user' ? '👤 사용자' : '👩‍⚕️ AI 상담사';
+                                const time = new Date(msg.timestamp).toLocaleString();
+                                html += `
+                                    <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; background: ${msg.role === 'user' ? '#f8f9fa' : '#e3f2fd'}">
+                                        <div style="font-weight: bold; color: #2c3e50; margin-bottom: 8px;">
+                                            ${role} (${time})
+                                        </div>
+                                        <div style="color: #666; word-break: break-word;">${msg.content}</div>
+                                    </div>
+                                `;
+                            });
+                            contentDiv.innerHTML = html;
+                        }
+                        
+                        viewDiv.style.display = viewDiv.style.display === 'none' ? 'block' : 'none';
+                    }
+                });
+                console.log('✅ 대화 이력 보기 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // 대화 이력 설정 저장 버튼
+            const saveHistorySettingsBtn = document.getElementById('saveHistorySettingsBtn');
+            if (saveHistorySettingsBtn) {
+                saveHistorySettingsBtn.addEventListener('click', function() {
+                    const maxHistory = document.getElementById('maxHistorySelect').value;
+                    const maxTokens = document.getElementById('maxTokensSelect').value;
+                    
+                    if (window.chatbot) {
+                        window.chatbot.MAX_HISTORY = parseInt(maxHistory);
+                        window.chatbot.MAX_TOKENS = parseInt(maxTokens);
+                        
+                        // 설정을 로컬 스토리지에 저장
+                        localStorage.setItem('chatbotHistorySettings', JSON.stringify({
+                            maxHistory: parseInt(maxHistory),
+                            maxTokens: parseInt(maxTokens)
+                        }));
+                        
+                        updateChatHistoryStatus();
+                        
+                        const statusDiv = document.getElementById('chatHistorySettingsStatus');
+                        if (statusDiv) {
+                            statusDiv.innerHTML = '<div style="color: green; padding: 10px; background: #d4edda; border-radius: 5px; margin-top: 10px;">✅ 대화 이력 설정이 저장되었습니다!</div>';
+                        }
+                        
+                        alert('✅ 대화 이력 설정이 성공적으로 저장되었습니다!');
+                    }
+                });
+                console.log('✅ 대화 이력 설정 저장 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // 대화 이력 초기화 버튼
+            const clearChatHistoryBtn = document.getElementById('clearChatHistoryBtn');
+            if (clearChatHistoryBtn) {
+                clearChatHistoryBtn.addEventListener('click', function() {
+                    if (confirm('정말로 모든 대화 이력을 초기화하시겠습니까?')) {
+                        if (window.chatbot) {
+                            window.chatbot.clearChatHistory();
+                            updateChatHistoryStatus();
+                            
+                            const statusDiv = document.getElementById('chatHistorySettingsStatus');
+                            if (statusDiv) {
+                                statusDiv.innerHTML = '<div style="color: #856404; padding: 10px; background: #fff3cd; border-radius: 5px; margin-top: 10px;">🔄 대화 이력이 초기화되었습니다.</div>';
+                            }
+                            
+                            alert('✅ 대화 이력이 성공적으로 초기화되었습니다!');
+                        }
+                    }
+                });
+                console.log('✅ 대화 이력 초기화 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // 대화 이력 내보내기 버튼
+            const exportChatHistoryBtn = document.getElementById('exportChatHistoryBtn');
+            if (exportChatHistoryBtn) {
+                exportChatHistoryBtn.addEventListener('click', function() {
+                    if (window.chatbot && window.chatbot.chatHistory.length > 0) {
+                        const history = window.chatbot.chatHistory;
+                        let exportText = '=== 피닉스 치과 AI 챗봇 대화 이력 ===\n\n';
+                        
+                        history.forEach((msg, index) => {
+                            const role = msg.role === 'user' ? '사용자' : 'AI 상담사';
+                            const time = new Date(msg.timestamp).toLocaleString();
+                            exportText += `[${index + 1}] ${role} (${time})\n`;
+                            exportText += `${msg.content}\n\n`;
+                        });
+                        
+                        // 파일 다운로드
+                        const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `chatbot_history_${new Date().toISOString().slice(0, 10)}.txt`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        alert('✅ 대화 이력이 성공적으로 내보내기되었습니다!');
+                    } else {
+                        alert('내보낼 대화 이력이 없습니다.');
+                    }
+                });
+                console.log('✅ 대화 이력 내보내기 버튼 이벤트 리스너 추가 완료');
+            }
+
+            // 대화 이력 상태 업데이트 함수
+            function updateChatHistoryStatus() {
+                const statusDiv = document.getElementById('chatHistoryStatus');
+                if (statusDiv && window.chatbot) {
+                    const historyCount = window.chatbot.chatHistory.length;
+                    const maxHistory = window.chatbot.MAX_HISTORY;
+                    statusDiv.innerHTML = `💬 현재 대화 이력: ${historyCount}개 메시지 | 최대 저장: ${maxHistory}개 메시지`;
+                }
+            }
+            
+            console.log('✅ 관리자 페이지 이벤트 리스너 설정 완료');
+        }
+
+        // 페이지 로드 시 설정 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                console.log('📋 관리자 페이지 설정 로드 시작');
+                
+                // 기존 설정 로드
+                const apiSettings = JSON.parse(localStorage.getItem('chatbotApiSettings') || '{}');
+                
+                // ChatGPT 설정 로드
+                const chatgptApiKey = document.getElementById('chatgptApiKey');
+                const chatgptModel = document.getElementById('chatgptModel');
+                const chatgptFinetuningModel = document.getElementById('chatgptFinetuningModel');
+                
+                if (chatgptApiKey) chatgptApiKey.value = apiSettings.chatgpt?.apiKey || '';
+                const chatgptModelVal = apiSettings.chatgpt?.model || 'gpt-5.2';
+                if (chatgptModel) chatgptModel.value = ['gpt-5.2', 'gpt-5-mini', 'finetuning'].includes(chatgptModelVal) ? chatgptModelVal : 'gpt-5.2';
+                if (chatgptFinetuningModel) chatgptFinetuningModel.value = apiSettings.chatgpt?.finetuningModel || '';
+                
+                // Finetuning 모델이 선택된 경우 그룹 표시
+                if (apiSettings.chatgpt?.model === 'finetuning') {
+                    const finetuningGroup = document.getElementById('chatgptFinetuningGroup');
+                    if (finetuningGroup) {
+                        finetuningGroup.style.display = 'block';
+                    }
+                }
+                
+                // Gemini 설정 로드
+                if (apiSettings.gemini) {
+                    const geminiApiKey = document.getElementById('geminiApiKey');
+                    const geminiModel = document.getElementById('geminiModel');
+                    
+                    if (geminiApiKey) geminiApiKey.value = apiSettings.gemini.apiKey || '';
+                    if (geminiModel) geminiModel.value = apiSettings.gemini.model || '';
+                }
+                
+                // Claude 설정 로드
+                if (apiSettings.claude) {
+                    const claudeApiKey = document.getElementById('claudeApiKey');
+                    const claudeModel = document.getElementById('claudeModel');
+                    
+                    if (claudeApiKey) claudeApiKey.value = apiSettings.claude.apiKey || '';
+                    if (claudeModel) claudeModel.value = apiSettings.claude.model || '';
+                }
+                
+                // 대화 이력 설정 로드
+                const historySettings = JSON.parse(localStorage.getItem('chatbotHistorySettings') || '{}');
+                const maxHistorySelect = document.getElementById('maxHistorySelect');
+                const maxTokensSelect = document.getElementById('maxTokensSelect');
+                
+                if (maxHistorySelect && historySettings.maxHistory) {
+                    maxHistorySelect.value = historySettings.maxHistory;
+                }
+                if (maxTokensSelect && historySettings.maxTokens) {
+                    maxTokensSelect.value = historySettings.maxTokens;
+                }
+                
+                // 챗봇 인스턴스에 설정 적용
+                if (window.chatbot && historySettings.maxHistory) {
+                    window.chatbot.MAX_HISTORY = historySettings.maxHistory;
+                }
+                if (window.chatbot && historySettings.maxTokens) {
+                    window.chatbot.MAX_TOKENS = historySettings.maxTokens;
+                }
+                
+                if (window.updateKnowledgeStatus) {
+                    window.updateKnowledgeStatus();
+                }
+                if (window.updateChatHistoryStatus) {
+                    window.updateChatHistoryStatus();
+                }
+                console.log('✅ 관리자 페이지 설정 로드 완료');
+                
+            } catch (error) {
+                console.error('❌ 관리자 페이지 설정 로드 실패:', error);
+            }
+        });
+
+        console.log('✅ 피닉스 치과 AI 챗봇 초기화 완료 (최적화 버전)');
+    </script>
+
+    <!-- AI 챗봇 관리 페이지 -->
+    <div class="popup-page" id="chatbotAdminPage" style="display: none;">
+        <div class="admin-header">
+            <div class="admin-title">🤖 AI 챗봇 관리 시스템</div>
+            <div class="admin-login-info">
+                <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">🔐 관리자 로그인 정보</div>
+                <div style="font-size: 14px; font-weight: bold;">아이디: <span style="color: #ffd700;">005060</span> | 비밀번호: <span style="color: #ffd700;">005060</span></div>
+            </div>
+            <div class="admin-nav">
+                <button class="nav-btn" onclick="closeChatbotAdmin()">🏠 메인으로</button>
+                <button class="nav-btn logout" onclick="closeChatbotAdmin()">로그아웃</button>
+            </div>
+        </div>
+        
+        <div class="admin-content">
+            <!-- 답변 우선순위 정보 -->
+            <div class="admin-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="section-header">
+                    <h3>🎯 AI 챗봇 답변 우선순위</h3>
+                </div>
+                <div style="padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 15px;">
+                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; text-align: center;">
+                        답변 처리 순서
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 14px;">
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">1차</div>
+                            <div>🔐 관리자 기능</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">2차</div>
+                            <div>📚 지식베이스 검색</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">3차</div>
+                            <div>❓ 기본 FAQ 답변</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">4차</div>
+                            <div>🤖 AI API 호출</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">5차</div>
+                            <div>🎭 시뮬레이션 답변</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px; text-align: center; font-size: 13px;">
+                        <span id="adminApiStatus">
+                            ${this.hasActiveAPI() ? '🟢 AI API 연결됨' : '🔴 AI API 설정 필요'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI 모델 API 설정 -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>🤖 챗봇 AI 모델 연결하기</h3>
+                </div>
+                
+                <div class="api-form">
+                    <!-- ChatGPT 설정 -->
+                    <div class="form-group">
+                        <label for="chatgptApiKey">ChatGPT API Key</label>
+                        <input type="password" id="chatgptApiKey" placeholder="sk-proj-...">
+                    </div>
+                    <div class="form-group">
+                        <label for="chatgptModel">ChatGPT 모델선택 (100만 토큰당 가격)</label>
+                        <select id="chatgptModel">
+                            <option value="">-- ChatGPT 모델을 선택하세요 --</option>
+                            <option value="gpt-5.2" selected>GPT-5.2 — Input $1.75 / Output $14.00 (100만 토큰)</option>
+                            <option value="gpt-5-mini">GPT-5 mini — Input $0.25 / Output $2.00 (100만 토큰)</option>
+                            <option value="finetuning">Finetuning Model (커스텀 모델)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="chatgptFinetuningGroup" style="display: none;">
+                        <label for="chatgptFinetuningModel">Finetuning 모델명 입력</label>
+                        <input type="text" id="chatgptFinetuningModel" placeholder="ft:gpt-4o-mini-2024-07-18:...">
+                    </div>
+
+                    <!-- Gemini 설정 -->
+                    <div class="form-group" style="margin-top: 25px;">
+                        <label for="geminiApiKey">Gemini 모델 API Key</label>
+                        <input type="password" id="geminiApiKey" placeholder="AIza...">
+                    </div>
+                    <div class="form-group">
+                        <label for="geminiModel">Gemini 모델선택</label>
+                        <select id="geminiModel">
+                            <option value="">-- Gemini 모델을 선택하세요 --</option>
+                            <option value="gemini-1.5-flash">Gemini 1.5 Flash (빠른 응답)</option>
+                            <option value="gemini-1.5-pro">Gemini 1.5 Pro (고성능)</option>
+                            <option value="gemini-1.0-pro">Gemini 1.0 Pro (안정성)</option>
+                        </select>
+                    </div>
+
+                    <!-- Claude 설정 -->
+                    <div class="form-group" style="margin-top: 25px;">
+                        <label for="claudeApiKey">Claude 모델 API Key</label>
+                        <input type="password" id="claudeApiKey" placeholder="sk-ant-...">
+                    </div>
+                    <div class="form-group">
+                        <label for="claudeModel">Claude 모델선택</label>
+                        <select id="claudeModel">
+                            <option value="">-- Claude 모델을 선택하세요 --</option>
+                            <option value="claude-3-haiku">Claude 3 Haiku (빠르고 효율적)</option>
+                            <option value="claude-3-sonnet">Claude 3 Sonnet (균형적 성능)</option>
+                            <option value="claude-3-opus">Claude 3 Opus (최고 성능)</option>
+                            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (최신 모델)</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-group" style="margin-top: 30px;">
+                        <button class="btn btn-primary" id="saveApiBtn">💾 설정 저장</button>
+                        <button class="btn btn-success" id="testApiBtn">🔗 연결 테스트</button>
+                        <button class="btn btn-danger" id="resetApiBtn">🔄 설정 초기화</button>
+                    </div>
+                    <div id="apiStatus" class="status-message"></div>
+                </div>
+            </div>
+
+            <!-- AI 지식 파일 업로드 -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>📚 AI 지식 파일 업로드</h3>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">클릭하거나 파일을 여기로 드래그하세요</div>
+                    <div class="upload-types">💡 <strong>지원 형식: 텍스트(.txt), JSONL(.jsonl)</strong><br>
+                    <small style="color: #666;">※ 지원 형식: .txt, .jsonl | PDF는 텍스트로 변환 후 업로드해주세요</small></div>
+                </div>
+                <input type="file" id="fileInput" class="file-input" accept=".txt,.jsonl" multiple>
+                
+                <div class="file-list" id="fileList">
+                    <!-- 업로드된 파일들이 여기에 표시됩니다 -->
+                </div>
+                
+                <div id="knowledgeStatus" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 14px;">
+                    📖 업로드된 지식 파일: 0개 | 상태: 비활성
+                </div>
+                
+                <!-- 지식 파일 설정 저장 버튼 -->
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn btn-success" id="saveKnowledgeBtn">💾 지식 파일 설정 저장</button>
+                    <button class="btn btn-primary" id="testKnowledgeBtn">🔍 지식 검색 테스트</button>
+                    <button class="btn" style="background: #17a2b8; color: white;" id="showParsedDataBtn">📋 파싱된 Q&A 보기</button>
+                    <button class="btn btn-danger" id="clearKnowledgeBtn">🗑️ 모든 지식 삭제</button>
+                </div>
+                <div id="knowledgeSettingsStatus" class="status-message"></div>
+                
+                <!-- 파싱된 Q&A 표시 영역 -->
+                <div id="parsedDataView" style="display: none; margin-top: 20px; background: white; border-radius: 10px; padding: 20px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+                    <h4 style="margin-bottom: 15px; color: #2c3e50;">📋 파싱된 Q&A 데이터</h4>
+                    <div id="parsedDataContent"></div>
+                </div>
+            </div>
+
+            <!-- 대화 이력 관리 -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>💬 대화 이력 관리</h3>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="color: #2c3e50; margin-bottom: 10px;">📊 대화 이력 현황</h4>
+                        <div id="chatHistoryStatus" style="padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #4facfe;">
+                            💬 현재 대화 이력: 0개 메시지 | 최대 저장: 20개 메시지
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #2c3e50; margin-bottom: 10px;">⚙️ 대화 이력 설정</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label style="font-weight: bold; display: block; margin-bottom: 5px;">최대 대화 이력 개수</label>
+                                <select id="maxHistorySelect" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                                    <option value="10">10개</option>
+                                    <option value="20" selected>20개</option>
+                                    <option value="30">30개</option>
+                                    <option value="50">50개</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight: bold; display: block; margin-bottom: 5px;">API 호출 최대 토큰</label>
+                                <select id="maxTokensSelect" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                                    <option value="1000">1,000 토큰</option>
+                                    <option value="1500" selected>1,500 토큰</option>
+                                    <option value="2000">2,000 토큰</option>
+                                    <option value="3000">3,000 토큰</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 대화 이력 관리 버튼 -->
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn btn-primary" id="viewChatHistoryBtn">👁️ 대화 이력 보기</button>
+                        <button class="btn btn-success" id="saveHistorySettingsBtn">💾 설정 저장</button>
+                        <button class="btn btn-warning" id="clearChatHistoryBtn">🗑️ 대화 이력 초기화</button>
+                        <button class="btn" style="background: #17a2b8; color: white;" id="exportChatHistoryBtn">📤 대화 이력 내보내기</button>
+                    </div>
+                    <div id="chatHistorySettingsStatus" class="status-message"></div>
+                    
+                    <!-- 대화 이력 표시 영역 -->
+                    <div id="chatHistoryView" style="display: none; margin-top: 20px; background: white; border-radius: 10px; padding: 20px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+                        <h4 style="margin-bottom: 15px; color: #2c3e50;">💬 현재 대화 이력</h4>
+                        <div id="chatHistoryContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* 관리자 페이지 스타일 */
+        .popup-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .admin-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .admin-title {
+            font-size: 24px;
+            font-weight: bold;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .admin-login-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 250px;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+        }
+
+        .nav-btn.logout {
+            background: #e74c3c;
+        }
+
+        .nav-btn.logout:hover {
+            background: #c0392b;
+        }
+
+        .admin-content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 20px;
+        }
+
+        /* API 설정 스타일 */
+        .api-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #4facfe;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3d8bfe;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        /* 파일 업로드 스타일 */
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .upload-area:hover {
+            border-color: #4facfe;
+            background: #f0f8ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .upload-types {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            margin-bottom: 10px;
+        }
+
+        .status-message {
+            margin-top: 15px;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .admin-title {
+                font-size: 20px;
+                min-width: auto;
+            }
+            
+            .admin-login-info {
+                min-width: auto;
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+            
+            .admin-nav {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .admin-content {
+                padding: 15px;
+                max-height: 90vh;
+            }
+            
+            .admin-section {
+                padding: 15px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .upload-area {
+                padding: 20px;
+            }
+            
+            .upload-icon {
+                font-size: 36px;
+            }
+            
+            .upload-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</body>
+</html>
