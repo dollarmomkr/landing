@@ -2132,6 +2132,27 @@
 
             .header-nav {
                 display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background: rgba(22, 22, 31, 0.98);
+                backdrop-filter: blur(10px);
+                padding: 24px 20px;
+                border-bottom: 1px solid var(--border);
+                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                text-align: center;
+                gap: 20px;
+            }
+
+            .header-nav.mobile-open {
+                display: flex;
+            }
+
+            .header-nav a {
+                font-size: 1.1rem;
+                padding: 10px;
             }
 
             .mobile-toggle {
@@ -2445,12 +2466,12 @@
                 </div>
             </a>
             <nav class="header-nav" id="mainNav">
-                <a href="#briefing">달러 브리핑</a>
-                <a href="#product101">달러상품 소식</a>
-                <a href="#casestudy">달러맘 스토리</a>
-                <a href="#" class="header-cta" onclick="showApplicationForm()">15분 상담 예약</a>
+                <a href="#briefing" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러뉴스 브리핑</a>
+                <a href="#product101" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러상품 정보</a>
+                <a href="#casestudy" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러맘 스토리</a>
+                <a href="#" class="header-cta" onclick="showApplicationForm(); document.getElementById('mainNav').classList.remove('mobile-open')">15분 상담 예약</a>
                 <button type="button" id="headerLoginBtn" class="header-login-btn"
-                    onclick="toggleHeaderLogin()">로그인</button>
+                    onclick="toggleHeaderLogin(); document.getElementById('mainNav').classList.remove('mobile-open')">로그인</button>
             </nav>
             <button class="mobile-toggle"
                 onclick="document.querySelector('.header-nav').classList.toggle('mobile-open')">☰</button>
@@ -2558,7 +2579,7 @@
     <div class="divider"></div>
     <section class="section" id="briefing">
         <div class="section-label">Dollar Briefing</div>
-        <h2 class="section-title">오늘의 달러 브리핑</h2>
+        <h2 class="section-title">달러뉴스 브리핑</h2>
         <p class="section-desc">핵심만 짚어주는 환율과 글로벌 경제 뉴스</p>
         <div class="courses-grid" id="newsGrid">
             <!-- News dynamic content -->
@@ -2571,8 +2592,8 @@
     <!-- ═══════ DOLLAR PRODUCT 101 ═══════ -->
     <div class="divider"></div>
     <section class="section" id="product101">
-        <div class="section-label">Dollar Product News</div>
-        <h2 class="section-title">달러상품 소식</h2>
+        <div class="section-label">Dollar Product Info</div>
+        <h2 class="section-title">달러상품 정보</h2>
         <p class="section-desc">알고 나면 쉬운 달러 예금, 달러 보험의 기본 개념과 최신 소식</p>
         <div class="features-grid" id="productsGrid">
             <p style="text-align: center; width: 100%; color: var(--text-secondary); grid-column: 1 / -1; padding: 40px 0;">
@@ -2595,36 +2616,7 @@
         </div>
     </section>
 
-    <!-- ═══════ LIFE & WEBINAR ═══════ -->
-    <div class="divider" style="display:none;"></div>
-    <section class="section" id="life" style="padding-bottom:20px; display:none;">
-        <div class="section-label">DollarMom Life & Event</div>
-        <h2 class="section-title">달러맘 라이프 / 웨비나</h2>
-        <p class="section-desc">일상 속 경제 이야기부터 실시간으로 소통하는 온라인 라이브까지</p>
 
-        <div class="courses-grid" style="grid-template-columns: repeat(2, 1fr);">
-            <div class="course-card" id="life-card" style="background:var(--bg-secondary);">
-                <span class="course-badge badge-partner"
-                    style="background:rgba(232, 139, 86, 0.12); color:#e88b56; border-color:rgba(232, 139, 86, 0.25);">Life
-                    Story</span>
-                <h3 class="course-name">어려운 보험 용어 타파!</h3>
-                <p class="course-sub">카페에서 친한 언니랑 수다 떨듯 쉽게 배우는 경제, 그리고 달러맘의 똑부러진 일상. 지금 들어볼까요?</p>
-                <button class="course-btn">스토리 읽기</button>
-            </div>
-
-            <div class="course-card featured" id="webinar" style="border-color:var(--accent-blue);">
-                <span class="course-badge badge-partner"
-                    style="background:#2e8b5722; color:#2e8b57; border-color:#2e8b5755;">Webinar / Event</span>
-                <h3 class="course-name">2026 달러 전략 라이브</h3>
-                <p class="course-sub">달러 전문가와 함께하는 Q&A 및 내 상황에 맞는 맞춤형 컨설팅 맛보기 웨비나.</p>
-                <div class="course-schedule-info">
-                    📅 매주 화요일 오후 8시<br>온라인 (Zoom 링크 개별 발송)
-                </div>
-                <button class="course-btn"
-                    style="background:var(--accent-blue); color:white; border:none;">신청하기</button>
-            </div>
-        </div>
-    </section>
 
     <!-- ═══════ CTA SECTION ═══════ -->
     <section class="cta-section">
@@ -2658,8 +2650,8 @@
                 <div style="flex:1;">
                     <div class="footer-heading">Menu</div>
                     <div class="footer-info">
-                        <a href="#briefing">달러 브리핑</a><br>
-                        <a href="#product101">달러상품 소식</a><br>
+                        <a href="#briefing">달러뉴스 브리핑</a><br>
+                        <a href="#product101">달러상품 정보</a><br>
                         <a href="#casestudy">달러맘 스토리</a><br>
                     </div>
                 </div>
