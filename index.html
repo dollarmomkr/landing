@@ -2929,10 +2929,27 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">대표 이미지 URL (선택)</label>
-                            <input type="url" id="contentImage" class="form-input" placeholder="https://...">
+                            <label class="form-label">미디어 종류 선택 *</label>
+                            <select id="contentType" class="form-select" onchange="toggleMediaInput()">
+                                <option value="image">이미지 파일 업로드</option>
+                                <option value="video">동영상 파일 업로드</option>
+                                <option value="link">유튜브 또는 외부 링크</option>
+                            </select>
                         </div>
                     </div>
+                    
+                    <div id="mediaFileInputGroup" class="form-group">
+                        <label class="form-label">파일 선택 (이미지/영상) *</label>
+                        <input type="file" id="contentFile" class="form-input" accept="image/*,video/*">
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:5px;">파일을 직접 서버에 업로드합니다.</p>
+                    </div>
+
+                    <div id="mediaLinkInputGroup" class="form-group" style="display:none;">
+                        <label class="form-label">유튜브 또는 외부 링크 URL *</label>
+                        <input type="url" id="contentMediaUrl" class="form-input" placeholder="https://youtube.com/... 또는 기타 링크">
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:5px;">유튜브 주소를 넣으면 자동으로 플레이어가 생성됩니다.</p>
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label">제목 *</label>
                         <input type="text" id="contentTitle" class="form-input" required
@@ -2944,7 +2961,7 @@
                             placeholder="콘텐츠 본문을 입력하세요."></textarea>
                     </div>
                     <div style="display:flex; align-items:center;">
-                        <button type="submit" class="submit-btn"
+                        <button type="submit" id="contentSubmitBtn" class="submit-btn"
                             style="background: linear-gradient(135deg, var(--gold), var(--accent-blue)); width:auto; padding:12px 36px; border-radius:var(--radius-sm);">저장하기</button>
                         <span id="contentStatus" style="margin-left:15px; font-weight:500;"></span>
                     </div>
@@ -3804,45 +3821,96 @@
         }
 
         // ═══════ CONTENT UPLOAD (ADMIN) ═══════
+        function toggleMediaInput() {
+            const type = document.getElementById('contentType').value;
+            const fileGroup = document.getElementById('mediaFileInputGroup');
+            const linkGroup = document.getElementById('mediaLinkInputGroup');
+            
+            if (type === 'link') {
+                fileGroup.style.display = 'none';
+                linkGroup.style.display = 'block';
+            } else {
+                fileGroup.style.display = 'block';
+                linkGroup.style.display = 'none';
+                // 파일 확장자 필터링
+                const input = document.getElementById('contentFile');
+                input.accept = type === 'image' ? 'image/*' : 'video/*';
+            }
+        }
+
         async function submitContent(e) {
             e.preventDefault();
 
             const statusEl = document.getElementById('contentStatus');
-            statusEl.textContent = '저장 중...';
+            const submitBtn = document.getElementById('contentSubmitBtn');
+            const type = document.getElementById('contentType').value;
+            const fileInput = document.getElementById('contentFile');
+            const linkInput = document.getElementById('contentMediaUrl');
+
+            statusEl.textContent = '처리 중...';
             statusEl.style.color = 'var(--text-secondary)';
+            submitBtn.disabled = true;
 
             if (!supabaseClient) {
-                statusEl.textContent = '❌ Supabase 연결이 설정되지 않았습니다.';
-                statusEl.style.color = '#e88b56';
+                alert('Supabase 연결이 설정되지 않았습니다.');
+                submitBtn.disabled = false;
                 return;
             }
 
-            const data = {
-                category: document.getElementById('contentCategory').value,
-                title: document.getElementById('contentTitle').value,
-                image_url: document.getElementById('contentImage').value || null,
-                content: document.getElementById('contentBody').value,
-                summary: document.getElementById('contentBody').value.substring(0, 100) + '...',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-
             try {
-                const { error } = await supabaseClient.from('contents').insert([data]);
-                if (error) throw error;
+                let mediaUrl = null;
+
+                // 1. 파일 업로드 처리 (있는 경우)
+                if (type !== 'link' && fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+                    const filePath = `uploads/${fileName}`;
+
+                    statusEl.textContent = '파일 업로드 중...';
+                    const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                        .from('contents')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: { publicUrl } } = supabaseClient.storage
+                        .from('contents')
+                        .getPublicUrl(filePath);
+                    
+                    mediaUrl = publicUrl;
+                } else if (type === 'link') {
+                    mediaUrl = linkInput.value;
+                }
+
+                const data = {
+                    category: document.getElementById('contentCategory').value,
+                    media_type: type,
+                    image_url: mediaUrl, // 기존 컬럼명 유지 (하위 호환성)
+                    title: document.getElementById('contentTitle').value,
+                    content: document.getElementById('contentBody').value,
+                    summary: document.getElementById('contentBody').value.substring(0, 100).replace(/\n/g, ' '),
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+
+                const { error: dbError } = await supabaseClient.from('contents').insert([data]);
+                if (dbError) throw dbError;
 
                 statusEl.textContent = '✅ 성공적으로 등록되었습니다!';
                 statusEl.style.color = 'var(--accent-blue)';
                 document.getElementById('contentForm').reset();
+                toggleMediaInput(); // 입력창 초기화
 
                 // 메인 페이지 데이터 새로고침
                 loadDynamicContents();
-
                 setTimeout(() => { statusEl.textContent = ''; }, 3000);
             } catch (err) {
                 console.error(err);
-                statusEl.textContent = '❌ 등록에 실패했습니다: ' + err.message;
+                statusEl.textContent = '❌ 오류: ' + (err.message || '등록 실패');
                 statusEl.style.color = '#e88b56';
+            } finally {
+                submitBtn.disabled = false;
             }
         }
 
@@ -3906,9 +3974,10 @@
                     } else {
                         productsGrid.innerHTML = '';
                         products.forEach(p => {
+                            const mediaHtml = renderMedia(p);
                             productsGrid.innerHTML += `
                             <div class="feature-card">
-                                ${p.image_url ? `<img src="${p.image_url}" style="width:100%; height:160px; object-fit:cover; border-radius:var(--radius-sm); margin-bottom:15px;">` : '<span class="feature-icon">🏦</span>'}
+                                ${mediaHtml}
                                 <h3 class="feature-title">${p.title}</h3>
                                 <p class="feature-desc">${p.summary || p.content}</p>
                             </div>
@@ -3923,9 +3992,10 @@
                     } else {
                         storiesGrid.innerHTML = '';
                         stories.forEach(s => {
+                            const mediaHtml = renderMedia(s);
                             storiesGrid.innerHTML += `
                             <div class="solution-overview-card">
-                                ${s.image_url ? `<img src="${s.image_url}" style="width:100%; height:160px; object-fit:cover; border-radius:var(--radius-sm); margin-bottom:15px;">` : '<span class="sol-icon">👩‍👧</span>'}
+                                ${mediaHtml}
                                 <h3 class="sol-title">${s.title}</h3>
                                 <p class="sol-desc">${s.summary || s.content}</p>
                             </div>
@@ -3936,6 +4006,39 @@
             } catch (err) {
                 console.error(err);
             }
+        }
+
+        // 미디어 렌더링 헬퍼 (이미지/영상/유튜브 구분)
+        function renderMedia(item) {
+            const url = item.image_url; // DB 컬럼명 그대로 사용
+            const type = item.media_type || 'image';
+            const style = "width:100%; height:180px; object-fit:cover; border-radius:var(--radius-sm); margin-bottom:15px;";
+
+            if (!url) {
+                return item.category === 'product' ? '<span class="feature-icon">🏦</span>' : '<span class="sol-icon">👩‍👧</span>';
+            }
+
+            // 유튜브 링크 감지 및 변환
+            if (type === 'link' || url.includes('youtube.com') || url.includes('youtu.be')) {
+                let videoId = '';
+                if (url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
+                else if (url.includes('be/')) videoId = url.split('be/')[1].split('?')[0];
+                
+                if (videoId) {
+                    return `
+                    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:var(--radius-sm); margin-bottom:15px;">
+                        <iframe style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" 
+                            src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                    </div>`;
+                }
+                return `<a href="${url}" target="_blank" class="header-cta" style="display:block; text-align:center; margin-bottom:15px; font-size:0.8rem;">🔗 링크 확인하기</a>`;
+            }
+
+            if (type === 'video') {
+                return `<video src="${url}" controls style="${style}"></video>`;
+            }
+
+            return `<img src="${url}" style="${style}" onerror="this.src='https://via.placeholder.com/300x180?text=Image+Not+Found'">`;
         }
 
 
