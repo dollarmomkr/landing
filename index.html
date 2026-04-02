@@ -2141,7 +2141,7 @@
                 backdrop-filter: blur(10px);
                 padding: 24px 20px;
                 border-bottom: 1px solid var(--border);
-                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
                 text-align: center;
                 gap: 20px;
             }
@@ -2466,10 +2466,15 @@
                 </div>
             </a>
             <nav class="header-nav" id="mainNav">
-                <a href="#briefing" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러뉴스 브리핑</a>
-                <a href="#product101" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러상품 정보</a>
-                <a href="#casestudy" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러맘 스토리</a>
-                <a href="#" class="header-cta" onclick="showApplicationForm(); document.getElementById('mainNav').classList.remove('mobile-open')">15분 상담 예약</a>
+                <a href="#briefing" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러뉴스
+                    브리핑</a>
+                <a href="#product101" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러상품
+                    정보</a>
+                <a href="#casestudy" onclick="document.getElementById('mainNav').classList.remove('mobile-open')">달러맘
+                    스토리</a>
+                <a href="#" class="header-cta"
+                    onclick="showApplicationForm(); document.getElementById('mainNav').classList.remove('mobile-open')">15분
+                    상담 예약</a>
                 <button type="button" id="headerLoginBtn" class="header-login-btn"
                     onclick="toggleHeaderLogin(); document.getElementById('mainNav').classList.remove('mobile-open')">로그인</button>
             </nav>
@@ -2583,7 +2588,8 @@
         <p class="section-desc">핵심만 짚어주는 환율과 글로벌 경제 뉴스</p>
         <div class="courses-grid" id="newsGrid">
             <!-- News dynamic content -->
-            <p style="text-align: center; width: 100%; color: var(--text-secondary); grid-column: 1 / -1; padding: 40px 0;">
+            <p
+                style="text-align: center; width: 100%; color: var(--text-secondary); grid-column: 1 / -1; padding: 40px 0;">
                 실시간 뉴스를 불러오는 중입니다...
             </p>
         </div>
@@ -2596,7 +2602,8 @@
         <h2 class="section-title">달러상품 정보</h2>
         <p class="section-desc">알고 나면 쉬운 달러 예금, 달러 보험의 기본 개념과 최신 소식</p>
         <div class="features-grid" id="productsGrid">
-            <p style="text-align: center; width: 100%; color: var(--text-secondary); grid-column: 1 / -1; padding: 40px 0;">
+            <p
+                style="text-align: center; width: 100%; color: var(--text-secondary); grid-column: 1 / -1; padding: 40px 0;">
                 상품 소식을 불러오는 중입니다...
             </p>
         </div>
@@ -2610,7 +2617,8 @@
         <p class="section-desc">나와 비슷한 고민을 했던 엄마들, 소상공인들의 실전 달러 투자 사례</p>
 
         <div class="solutions-overview-grid" id="storiesGrid">
-            <p style="text-align: center; width: 100%; color: var(--text-secondary); grid-column: 1 / -1; padding: 40px 0;">
+            <p
+                style="text-align: center; width: 100%; color: var(--text-secondary); grid-column: 1 / -1; padding: 40px 0;">
                 스토리를 불러오는 중입니다...
             </p>
         </div>
@@ -2811,7 +2819,8 @@
             <!-- Content Upload Form -->
             <hr style="border:0; border-top:1px solid var(--border); margin:40px 0 20px;">
             <h3 style="margin-bottom:20px; color:var(--gold);">📝 콘텐츠 업로드 (상품 소식 / 스토리)</h3>
-            <div style="background:var(--bg-card); padding:24px; border-radius:var(--radius-md); border:1px solid var(--border);">
+            <div
+                style="background:var(--bg-card); padding:24px; border-radius:var(--radius-md); border:1px solid var(--border);">
                 <form id="contentForm" onsubmit="submitContent(event)">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
                         <div class="form-group">
@@ -2828,14 +2837,17 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">제목 *</label>
-                        <input type="text" id="contentTitle" class="form-input" required placeholder="상품 소식 또는 스토리 제목을 입력하세요">
+                        <input type="text" id="contentTitle" class="form-input" required
+                            placeholder="상품 소식 또는 스토리 제목을 입력하세요">
                     </div>
                     <div class="form-group">
                         <label class="form-label">본문 내용 *</label>
-                        <textarea id="contentBody" class="form-input" required style="height:150px; resize:vertical;" placeholder="콘텐츠 본문을 입력하세요."></textarea>
+                        <textarea id="contentBody" class="form-input" required style="height:150px; resize:vertical;"
+                            placeholder="콘텐츠 본문을 입력하세요."></textarea>
                     </div>
                     <div style="display:flex; align-items:center;">
-                        <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, var(--gold), var(--accent-blue)); width:auto; padding:12px 36px; border-radius:var(--radius-sm);">저장하기</button>
+                        <button type="submit" class="submit-btn"
+                            style="background: linear-gradient(135deg, var(--gold), var(--accent-blue)); width:auto; padding:12px 36px; border-radius:var(--radius-sm);">저장하기</button>
                         <span id="contentStatus" style="margin-left:15px; font-weight:500;"></span>
                     </div>
                 </form>
@@ -3628,12 +3640,12 @@
         // ═══════ CONTENT UPLOAD (ADMIN) ═══════
         async function submitContent(e) {
             e.preventDefault();
-            
+
             const statusEl = document.getElementById('contentStatus');
             statusEl.textContent = '저장 중...';
             statusEl.style.color = 'var(--text-secondary)';
 
-            if(!supabaseClient) {
+            if (!supabaseClient) {
                 statusEl.textContent = '❌ Supabase 연결이 설정되지 않았습니다.';
                 statusEl.style.color = '#e88b56';
                 return;
@@ -3652,14 +3664,14 @@
             try {
                 const { error } = await supabaseClient.from('contents').insert([data]);
                 if (error) throw error;
-                
+
                 statusEl.textContent = '✅ 성공적으로 등록되었습니다!';
                 statusEl.style.color = 'var(--accent-blue)';
                 document.getElementById('contentForm').reset();
-                
+
                 // 메인 페이지 데이터 새로고침
                 loadDynamicContents();
-                
+
                 setTimeout(() => { statusEl.textContent = ''; }, 3000);
             } catch (err) {
                 console.error(err);
@@ -3671,17 +3683,17 @@
         // ═══════ DYNAMIC CONTENT FETCHING ═══════
         async function loadNews() {
             const grid = document.getElementById('newsGrid');
-            if(!grid) return;
+            if (!grid) return;
             try {
                 const res = await fetch('/api/news');
-                if(!res.ok) throw new Error('API 호출 실패');
+                if (!res.ok) throw new Error('API 호출 실패');
                 const data = await res.json();
-                if(data.success && data.items && data.items.length > 0) {
+                if (data.success && data.items && data.items.length > 0) {
                     grid.innerHTML = '';
-                    data.items.slice(0,3).forEach((item, index) => {
+                    data.items.slice(0, 3).forEach((item, index) => {
                         const isFeatured = index === 1 ? 'featured' : '';
                         const partnerColor = index === 0 ? '#2e8b57' : (index === 1 ? '#c9a84c' : '#e88b56');
-                        
+
                         grid.innerHTML += `
                         <div class="course-card ${isFeatured}" style="${isFeatured ? 'border-color:var(--gold);' : ''}">
                             <span class="course-badge badge-partner"
@@ -3704,10 +3716,10 @@
         async function loadDynamicContents() {
             const productsGrid = document.getElementById('productsGrid');
             const storiesGrid = document.getElementById('storiesGrid');
-            
-            if(!supabaseClient) {
-                if(productsGrid) productsGrid.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column:1/-1;">데이터베이스 연결이 없습니다.</p>';
-                if(storiesGrid) storiesGrid.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column:1/-1;">데이터베이스 연결이 없습니다.</p>';
+
+            if (!supabaseClient) {
+                if (productsGrid) productsGrid.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column:1/-1;">데이터베이스 연결이 없습니다.</p>';
+                if (storiesGrid) storiesGrid.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column:1/-1;">데이터베이스 연결이 없습니다.</p>';
                 return;
             }
 
@@ -3722,8 +3734,8 @@
                 const products = data.filter(d => d.category === 'product');
                 const stories = data.filter(d => d.category === 'story');
 
-                if(productsGrid) {
-                    if(products.length === 0) {
+                if (productsGrid) {
+                    if (products.length === 0) {
                         productsGrid.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column:1/-1;">등록된 상품 소식이 없습니다.</p>';
                     } else {
                         productsGrid.innerHTML = '';
@@ -3739,8 +3751,8 @@
                     }
                 }
 
-                if(storiesGrid) {
-                    if(stories.length === 0) {
+                if (storiesGrid) {
+                    if (stories.length === 0) {
                         storiesGrid.innerHTML = '<p style="text-align:center; color:var(--text-secondary); grid-column:1/-1;">등록된 스토리가 없습니다.</p>';
                     } else {
                         storiesGrid.innerHTML = '';
