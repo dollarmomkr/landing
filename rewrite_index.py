@@ -218,9 +218,9 @@ footer_replacement = """    <!-- ═══════ FOOTER ══════
                 <div style="flex:1;">
                     <div class="footer-heading">Contact & Policies</div>
                     <div class="footer-info">
-                        <strong>상담문의:</strong> 010-0000-0000<br>
-                        <strong>이메일:</strong> support@dollarmom.com<br>
-                        <strong>카카오채널:</strong> @dollarmom<br>
+                        <strong>상담문의:</strong> 010-3312-5755<br>
+                        <strong>이메일:</strong> dollarmom.kr@gmail.com<br>
+                        <strong>카카오채널:</strong> @달러맘<br>
                         <a href="#">이용약관</a> | <a href="#">개인정보처리방침</a>
                     </div>
                 </div>
